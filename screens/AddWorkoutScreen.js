@@ -23,7 +23,7 @@ export default function AddWorkoutScreen(props) {
   const [errorTextSets, setErrorTextSets] = React.useState();
   const [selectedSetsIndex, updateSetsIndex] = React.useState();
   const inputSets = React.createRef();
-  const setsButtons = ["5", "10", "custom"];
+  const setsButtons = ["1", "2", "3", "custom"];
 
   // Hooks for reps, rep input/errors
   const [reps, setReps] = React.useState();

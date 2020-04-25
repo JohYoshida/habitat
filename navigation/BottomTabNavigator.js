@@ -7,6 +7,7 @@ import HomeScreen from "../screens/HomeScreen";
 import LinksScreen from "../screens/LinksScreen";
 import ExerciseScreen from "../screens/ExerciseScreen";
 import AddExerciseScreen from "../screens/AddExerciseScreen";
+import ViewExerciseScreen from "../screens/ViewExerciseScreen";
 import AddWorkoutScreen from "../screens/AddWorkoutScreen";
 
 const INITIAL_ROUTE_NAME = "ExerciseStack";
@@ -17,6 +18,11 @@ function ExerciseStackScreen() {
     <ExerciseStack.Navigator>
       <ExerciseStack.Screen name="Exercise" component={ExerciseScreen} />
       <ExerciseStack.Screen name="Add Exercise" component={AddExerciseScreen} />
+      <ExerciseStack.Screen
+        name="View Exercise"
+        component={ViewExerciseScreen}
+        options={({ route }) => ({ title: route.params.title })}
+      />
       <ExerciseStack.Screen name="Add Workout" component={AddWorkoutScreen} />
     </ExerciseStack.Navigator>
   );

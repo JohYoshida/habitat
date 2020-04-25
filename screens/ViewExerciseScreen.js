@@ -1,4 +1,5 @@
 import * as React from "react";
+import { View } from "react-native";
 import { Input } from "react-native-elements";
 import { Button, Container, Content, StyleProvider, Text } from "native-base";
 // Native base theme requirements
@@ -29,18 +30,29 @@ export default function ViewExerciseScreen(props) {
       });
   };
 
+  const getWorkouts = () => {
+    const exercise_id = props.route.params.exercise.id;
+    fetch(`${URL}/workouts/${exercise_id}`, {
+      method: "GET"
+    })
+      .then(res => res.json())
+      .then(json => {
+        console.log(json);
+      });
+  };
+
   // Conditional rendering for delete/confirm buttons
   let DeleteButton;
   if (confirmDelete) {
     DeleteButton = (
-      <Container>
+      <View>
         <Button block danger onPress={deleteExercise}>
           <Text>Are you sure?</Text>
         </Button>
         <Button block onPress={() => setConfirmDelete(false)}>
           <Text>Cancel</Text>
         </Button>
-      </Container>
+      </View>
     );
   } else {
     DeleteButton = (
@@ -53,7 +65,12 @@ export default function ViewExerciseScreen(props) {
   return (
     <StyleProvider style={getTheme(platform)}>
       <Container>
-        <Content padder>{DeleteButton}</Content>
+        <Content padder>
+          <Button block onPress={getWorkouts}>
+            <Text>Get workouts</Text>
+          </Button>
+          {DeleteButton}
+        </Content>
       </Container>
     </StyleProvider>
   );

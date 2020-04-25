@@ -5,6 +5,8 @@ import {
   Container,
   Content,
   Icon,
+  List,
+  ListItem,
   StyleProvider,
   Text
 } from "native-base";
@@ -23,17 +25,17 @@ export default function ExerciseScreen(props) {
           <Content padder>
           </Content>
 
-          <ActionButton buttonColor={Colors.brandPrimary}>
+          <ActionButton buttonColor={colors.brandPrimary}>
             <ActionButton.Item
               title="Add Exercise"
-              buttonColor={Colors.brandPrimary}
+              buttonColor={colors.brandPrimary}
               onPress={() => props.navigation.navigate("Add Exercise")}
             >
               <Icon name="add" style={styles.actionButtonIcon} />
             </ActionButton.Item>
             <ActionButton.Item
               title="Add Workout"
-              buttonColor={Colors.brandPrimary}
+              buttonColor={colors.brandPrimary}
               onPress={() => props.navigation.navigate("Add Workout")}
             >
               <Icon name="add" style={styles.actionButtonIcon} />
@@ -54,3 +56,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fafafa"
   }
 });
+
+const colors = {
+  brandPrimary: Colors.brandPrimary
+};

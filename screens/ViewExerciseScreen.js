@@ -1,15 +1,25 @@
 import * as React from "react";
 import { View } from "react-native";
-import { Input } from "react-native-elements";
-import { Button, Container, Content, StyleProvider, Text } from "native-base";
+import { ListItem, Input } from "react-native-elements";
+import {
+  Button,
+  Container,
+  Content,
+  List,
+  StyleProvider,
+  Text
+} from "native-base";
 // Native base theme requirements
 import getTheme from "../native-base-theme/components";
 import platform from "../native-base-theme/variables/platform";
+
+const moment = require("moment");
 
 const URL = "https://habitat-server.herokuapp.com";
 
 export default function ViewExerciseScreen(props) {
   const [confirmDelete, setConfirmDelete] = React.useState(false);
+  const [workouts, setWorkouts] = React.useState([]);
 
   const deleteExercise = () => {
     const { id, name } = props.route.params.exercise;
@@ -37,9 +47,21 @@ export default function ViewExerciseScreen(props) {
     })
       .then(res => res.json())
       .then(json => {
-        console.log(json);
+        setWorkouts(json.data);
       });
   };
+
+  const WorkoutsList = [];
+  workouts.forEach((workout, index) => {
+    let timestamp = moment(workout.createdAt).format("h:mm a MM-DD-YYYY");
+    WorkoutsList.push(
+      <ListItem
+        key={index}
+        title={`${workout.reps} reps, ${workout.sets} sets`}
+        subtitle={timestamp}
+      />
+    );
+  });
 
   // Conditional rendering for delete/confirm buttons
   let DeleteButton;
@@ -57,7 +79,7 @@ export default function ViewExerciseScreen(props) {
   } else {
     DeleteButton = (
       <Button block bordered danger onPress={() => setConfirmDelete(true)}>
-        <Text>Delete</Text>
+        <Text>Delete Exercise</Text>
       </Button>
     );
   }
@@ -69,6 +91,7 @@ export default function ViewExerciseScreen(props) {
           <Button block onPress={getWorkouts}>
             <Text>Get workouts</Text>
           </Button>
+          <List>{WorkoutsList}</List>
           {DeleteButton}
         </Content>
       </Container>

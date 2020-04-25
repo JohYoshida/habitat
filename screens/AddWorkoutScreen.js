@@ -32,6 +32,8 @@ export default function AddWorkoutScreen(props) {
   const inputReps = React.createRef();
   const repsButtons = ["5", "10", "custom"];
 
+  const { exercises, getExercises } = props.route.params;
+
   // Submit form
   const submit = () => {
     props.navigation.goBack();
@@ -53,13 +55,6 @@ export default function AddWorkoutScreen(props) {
       default:
     }
   };
-
-  // Array of picker items
-  const PickerItems = [
-    <Picker.Item label="Pushup" value="0" key={0} />,
-    <Picker.Item label="Pullup" value="1" key={1} />,
-    <Picker.Item label="Chinup" value="2" key={2} />
-  ];
 
   // Conditional rendering for custom sets input
   let InputCustomSets;
@@ -97,18 +92,26 @@ export default function AddWorkoutScreen(props) {
     );
   } else InputCustomReps = null;
 
+  // Assemble Picker list
+  // TODO: make this list update dynamically when new workout
+  // is added from downstack of this screen 
+  const PickerList = [];
+  exercises.forEach((item, index) => {
+    PickerList.push(<Picker.Item label={item.name} value={index} key={item.id} />);
+  });
+
   return (
     <StyleProvider style={getTheme(platform)}>
       <Container>
         <Content padder>
           <Form>
             <Item picker>
-              <Picker placeholder="select a workout">{PickerItems}</Picker>
+              <Picker placeholder="select a workout">{PickerList}</Picker>
             </Item>
             <Button
               block
               transparent
-              onPress={() => props.navigation.navigate("Add Exercise")}
+              onPress={() => props.navigation.navigate("Add Exercise", { exercises, getExercises })}
             >
               <Text>or add exercise</Text>
             </Button>

@@ -14,7 +14,6 @@ export default function AddExerciseScreen(props) {
 
   const submitExercise = () => {
     const { exercises } = props.route.params;
-    console.log(exercises);
     if (exercises.length === 0) {
       postExercise();
     } else {
@@ -42,9 +41,6 @@ export default function AddExerciseScreen(props) {
     })
     .then(res => res.json())
     .then(json => {
-      if (props.route.params.addExercise) {
-        props.route.params.addExercise(json.name, json.id);
-      }
       props.route.params.getExercises();
       props.navigation.goBack();
     });

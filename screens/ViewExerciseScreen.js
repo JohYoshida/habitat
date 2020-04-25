@@ -1,14 +1,16 @@
 import * as React from "react";
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { ListItem, Input } from "react-native-elements";
 import {
   Button,
   Container,
   Content,
   List,
+  Spinner,
   StyleProvider,
   Text
 } from "native-base";
+import Colors from "../constants/Colors";
 // Native base theme requirements
 import getTheme from "../native-base-theme/components";
 import platform from "../native-base-theme/variables/platform";
@@ -20,13 +22,15 @@ const URL = "https://habitat-server.herokuapp.com";
 export default function ViewExerciseScreen(props) {
   const [confirmDelete, setConfirmDelete] = React.useState(false);
   const [workouts, setWorkouts] = React.useState([]);
+  const [isFetchingWorkouts, setIsFetchingWorkouts] = React.useState(false);
 
+  // Get workouts when the screen mounts or state updates
   React.useEffect(
     () => {
       getWorkouts();
     },
-    [workouts.length]
-  ); // only run when exercises.length changes
+    [workouts.length] // only run when workouts.length changes
+  );
 
   const deleteExercise = () => {
     const { id, name } = props.route.params.exercise;
@@ -48,6 +52,7 @@ export default function ViewExerciseScreen(props) {
   };
 
   const getWorkouts = () => {
+    setIsFetchingWorkouts(true);
     const exercise_id = props.route.params.exercise.id;
     fetch(`${URL}/workouts/${exercise_id}`, {
       method: "GET"
@@ -55,9 +60,11 @@ export default function ViewExerciseScreen(props) {
       .then(res => res.json())
       .then(json => {
         setWorkouts(json.data);
+        setIsFetchingWorkouts(false);
       });
   };
 
+  // Assemble workouts list
   const WorkoutsList = [];
   workouts.forEach((workout, index) => {
     let timestamp = moment(workout.createdAt).format("h:mm a MM-DD-YYYY");
@@ -69,6 +76,19 @@ export default function ViewExerciseScreen(props) {
       />
     );
   });
+
+  // Conditionally display workouts list, empty list text, or loading spinner
+  let ListDisplay;
+  console.log(isFetchingWorkouts);
+  if (isFetchingWorkouts) {
+    ListDisplay = <Spinner color={Colors.brandPrimary} />;
+  } else if (workouts.length === 0) {
+    ListDisplay = (
+      <Text style={styles.emptyListText}>
+        workouts you add will appear here
+      </Text>
+    );
+  } else ListDisplay = <List>{WorkoutsList}</List>;
 
   // Conditional rendering for delete/confirm buttons
   let DeleteButton;
@@ -98,10 +118,18 @@ export default function ViewExerciseScreen(props) {
           <Button block onPress={getWorkouts}>
             <Text>Get workouts</Text>
           </Button>
-          <List>{WorkoutsList}</List>
+          {ListDisplay}
           {DeleteButton}
         </Content>
       </Container>
     </StyleProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  emptyListText: {
+    color: "#BDBDBD",
+    textAlign: "center",
+    marginVertical: 20
+  }
+});

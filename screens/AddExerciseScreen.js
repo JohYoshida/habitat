@@ -59,6 +59,7 @@ export default function AddExerciseScreen(props) {
           <Input
             ref={inputExercise}
             value={exercise}
+            autoFocus={true}
             placeholder={
               errorTextExercise ? errorTextExercise : "name of exercise"
             }

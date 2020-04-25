@@ -7,6 +7,7 @@ import {
   Icon,
   List,
   ListItem,
+  Spinner,
   StyleProvider,
   Text
 } from "native-base";
@@ -20,13 +21,16 @@ const URL = "https://habitat-server.herokuapp.com";
 
 export default function ExerciseScreen(props) {
   const [exercises, setExercises] = React.useState([]);
+  const [isFetchingExercises, setIsFetchingExercises] = React.useState(false);
 
   const getExercises = () => {
+    setIsFetchingExercises(true)
     fetch(`${URL}/exercises`, {
       method: "GET"
     })
       .then(res => res.json())
       .then(json => {
+        setIsFetchingExercises(false)
         setExercises(json.data);
       });
   };
@@ -50,25 +54,34 @@ export default function ExerciseScreen(props) {
     );
   });
 
+  // Conditionally display exercise list, empty list text, or loading spinner
+  let ListDisplay;
+  if (isFetchingExercises) {
+    ListDisplay = <Spinner color={Colors.brandPrimary}/>
+  } else if (exercises.length === 0) {
+    ListDisplay =
+    <Text style={styles.emptyListText}>exercises you add will appear here</Text>
+  } else ListDisplay = <List>{ExercisesList}</List>;
+
   return (
     <StyleProvider style={getTheme(platform)}>
       <Container>
         <View style={styles.container}>
           <Content padder>
-            <List>{ExercisesList}</List>
+            {ListDisplay}
           </Content>
 
-          <ActionButton buttonColor={colors.brandPrimary}>
+          <ActionButton buttonColor={Colors.brandPrimary}>
             <ActionButton.Item
               title="Add Exercise"
-              buttonColor={colors.brandPrimary}
+              buttonColor={Colors.brandPrimary}
               onPress={() => props.navigation.navigate("Add Exercise")}
             >
               <Icon name="add" style={styles.actionButtonIcon} />
             </ActionButton.Item>
             <ActionButton.Item
               title="Add Workout"
-              buttonColor={colors.brandPrimary}
+              buttonColor={Colors.brandPrimary}
               onPress={() => props.navigation.navigate("Add Workout")}
             >
               <Icon name="add" style={styles.actionButtonIcon} />
@@ -87,9 +100,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fafafa"
+  },
+  emptyListText: {
+    color: "#BDBDBD",
+    textAlign: "center",
+    marginVertical: 20
   }
 });
-
-const colors = {
-  brandPrimary: Colors.brandPrimary
-};

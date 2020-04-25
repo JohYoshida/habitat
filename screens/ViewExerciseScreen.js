@@ -79,7 +79,7 @@ export default function ViewExerciseScreen(props) {
   } else {
     DeleteButton = (
       <Button block bordered danger onPress={() => setConfirmDelete(true)}>
-        <Text>Delete Exercise</Text>
+        <Text>Delete {props.route.params.exercise.name}</Text>
       </Button>
     );
   }

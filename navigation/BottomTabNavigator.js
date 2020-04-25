@@ -21,7 +21,7 @@ function ExerciseStackScreen() {
       <ExerciseStack.Screen
         name="View Exercise"
         component={ViewExerciseScreen}
-        options={({ route }) => ({ title: route.params.title })}
+        options={({ route }) => ({ title: route.params.exercise.name })}
       />
       <ExerciseStack.Screen name="Add Workout" component={AddWorkoutScreen} />
     </ExerciseStack.Navigator>

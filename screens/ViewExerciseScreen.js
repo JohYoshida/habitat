@@ -47,15 +47,13 @@ export default function ViewExerciseScreen(props) {
       <Button block bordered danger onPress={() => setConfirmDelete(true)}>
         <Text>Delete</Text>
       </Button>
-    )
+    );
   }
 
   return (
     <StyleProvider style={getTheme(platform)}>
       <Container>
-        <Content padder>
-          { DeleteButton }
-        </Content>
+        <Content padder>{DeleteButton}</Content>
       </Container>
     </StyleProvider>
   );

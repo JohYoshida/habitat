@@ -39,12 +39,12 @@ export default function AddExerciseScreen(props) {
         name: exercise
       })
     })
-    .then(res => res.json())
-    .then(json => {
-      props.route.params.getExercises();
-      props.navigation.goBack();
-    });
-  }
+      .then(res => res.json())
+      .then(json => {
+        props.route.params.getExercises();
+        props.navigation.goBack();
+      });
+  };
 
   const inputError = () => {
     inputExercise.current.shake();

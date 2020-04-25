@@ -94,10 +94,12 @@ export default function AddWorkoutScreen(props) {
 
   // Assemble Picker list
   // TODO: make this list update dynamically when new workout
-  // is added from downstack of this screen 
+  // is added from downstack of this screen
   const PickerList = [];
   exercises.forEach((item, index) => {
-    PickerList.push(<Picker.Item label={item.name} value={index} key={item.id} />);
+    PickerList.push(
+      <Picker.Item label={item.name} value={index} key={item.id} />
+    );
   });
 
   return (
@@ -111,7 +113,12 @@ export default function AddWorkoutScreen(props) {
             <Button
               block
               transparent
-              onPress={() => props.navigation.navigate("Add Exercise", { exercises, getExercises })}
+              onPress={() =>
+                props.navigation.navigate("Add Exercise", {
+                  exercises,
+                  getExercises
+                })
+              }
             >
               <Text>or add exercise</Text>
             </Button>

@@ -23,6 +23,15 @@ export default function ExerciseScreen(props) {
   const [exercises, setExercises] = React.useState([]);
   const [isFetchingExercises, setIsFetchingExercises] = React.useState(false);
 
+  // Get exercises when the screen mounts or state updates
+  React.useEffect(
+    () => {
+      getExercises();
+    },
+    [exercises.length] // only run when exercises.length changes
+  );
+
+  // Get all exercises from server
   const getExercises = () => {
     setIsFetchingExercises(true);
     fetch(`${URL}/exercises`, {
@@ -34,14 +43,6 @@ export default function ExerciseScreen(props) {
         setExercises(json.data);
       });
   };
-
-  React.useEffect(
-    () => {
-      getExercises();
-    },
-    [exercises.length]
-  ); // only run when exercises.length changes
-
 
   // Assemble exercise list
   const ExercisesList = [];
@@ -77,7 +78,6 @@ export default function ExerciseScreen(props) {
           <Content padder>
             {ListDisplay}
           </Content>
-
           <ActionButton buttonColor={Colors.brandPrimary}>
             <ActionButton.Item
               title="Add Exercise"

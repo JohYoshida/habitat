@@ -17,26 +17,48 @@ import Colors from "../constants/Colors";
 import getTheme from "../native-base-theme/components";
 import platform from "../native-base-theme/variables/platform";
 
+const URL = "https://habitat-server.herokuapp.com";
+
 export default function AddWorkoutScreen(props) {
   // Hooks for sets, set input/errors
-  const [sets, setSets] = React.useState();
-  const [errorTextSets, setErrorTextSets] = React.useState();
+  const [sets, updateSets] = React.useState();
+  const [errorTextSets, updateErrorTextSets] = React.useState();
   const [selectedSetsIndex, updateSetsIndex] = React.useState();
   const inputSets = React.createRef();
   const setsButtons = ["1", "2", "3", "custom"];
 
   // Hooks for reps, rep input/errors
-  const [reps, setReps] = React.useState();
-  const [errorTextReps, setErrorTextReps] = React.useState();
+  const [reps, updateReps] = React.useState();
+  const [errorTextReps, updateErrorTextReps] = React.useState();
   const [selectedRepsIndex, updateRepsIndex] = React.useState();
   const inputReps = React.createRef();
   const repsButtons = ["5", "10", "custom"];
 
   const { exercises, getExercises } = props.route.params;
 
+  const [selectedExerciseIndex, setSelectedExercise] = React.useState(
+    exercises.length > 0 ? exercises[0] : "add exercise"
+  );
+
   // Submit form
-  const submit = () => {
-    props.navigation.goBack();
+  const submitWorkout = () => {
+    let exercise_id = exercises[selectedExerciseIndex].id;
+    fetch(`${URL}/workout`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        exercise_id,
+        reps,
+        sets
+      })
+    })
+      .then(res => res.json())
+      .then(json => {
+        props.navigation.goBack();
+      });
   };
 
   // Handle text input errors
@@ -44,13 +66,13 @@ export default function AddWorkoutScreen(props) {
     switch (id) {
       case "reps":
         inputReps.current.shake();
-        setReps("");
-        setErrorTextReps("invalid entry");
+        updateReps("");
+        updateErrorTextReps("invalid entry");
         break;
       case "sets":
         inputSets.current.shake();
-        setSets("");
-        setErrorTextSets("invalid entry");
+        updateSets("");
+        updateErrorTextSets("invalid entry");
         break;
       default:
     }
@@ -67,8 +89,8 @@ export default function AddWorkoutScreen(props) {
         value={sets}
         placeholder={errorTextSets ? errorTextSets : "number of sets"}
         onChangeText={text => {
-          setErrorTextSets(null);
-          setSets(text);
+          updateErrorTextSets(null);
+          updateSets(text);
         }}
       />
     );
@@ -85,8 +107,8 @@ export default function AddWorkoutScreen(props) {
         value={reps}
         placeholder={errorTextReps ? errorTextReps : "number of reps"}
         onChangeText={text => {
-          setErrorTextReps(null);
-          setReps(text);
+          updateErrorTextReps(null);
+          updateReps(text);
         }}
       />
     );
@@ -108,7 +130,13 @@ export default function AddWorkoutScreen(props) {
         <Content padder>
           <Form>
             <Item picker>
-              <Picker placeholder="select a workout">{PickerList}</Picker>
+              <Picker
+                selectedValue={selectedExerciseIndex}
+                onValueChange={value => setSelectedExercise(value)}
+                placeholder="select a workout"
+              >
+                {PickerList}
+              </Picker>
             </Item>
             <Button
               block
@@ -128,6 +156,9 @@ export default function AddWorkoutScreen(props) {
             <ButtonGroup
               onPress={index => {
                 updateRepsIndex(index);
+                if (repsButtons[index] !== "custom")
+                  updateReps(repsButtons[index]);
+                else updateReps("");
               }}
               selectedIndex={selectedRepsIndex}
               buttons={repsButtons}
@@ -141,6 +172,9 @@ export default function AddWorkoutScreen(props) {
             <ButtonGroup
               onPress={index => {
                 updateSetsIndex(index);
+                if (setsButtons[index] !== "custom")
+                  updateSets(setsButtons[index]);
+                else updateSets("");
               }}
               selectedIndex={selectedSetsIndex}
               buttons={setsButtons}
@@ -149,7 +183,7 @@ export default function AddWorkoutScreen(props) {
             {InputCustomSets}
           </Form>
 
-          <Button block onPress={submit}>
+          <Button block onPress={submitWorkout}>
             <Text>Submit</Text>
           </Button>
 

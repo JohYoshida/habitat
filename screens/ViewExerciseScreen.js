@@ -21,6 +21,10 @@ export default function ViewExerciseScreen(props) {
   const [confirmDelete, setConfirmDelete] = React.useState(false);
   const [workouts, setWorkouts] = React.useState([]);
 
+  React.useEffect(() => {
+    getWorkouts();
+  }, [workouts.length]) // only run when exercises.length changes
+
   const deleteExercise = () => {
     const { id, name } = props.route.params.exercise;
     fetch(`${URL}/exercise`, {

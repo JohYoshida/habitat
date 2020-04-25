@@ -24,20 +24,24 @@ export default function ExerciseScreen(props) {
   const [isFetchingExercises, setIsFetchingExercises] = React.useState(false);
 
   const getExercises = () => {
-    setIsFetchingExercises(true)
+    setIsFetchingExercises(true);
     fetch(`${URL}/exercises`, {
       method: "GET"
     })
       .then(res => res.json())
       .then(json => {
-        setIsFetchingExercises(false)
+        setIsFetchingExercises(false);
         setExercises(json.data);
       });
   };
 
-  React.useEffect(() => {
-    getExercises()
-  }, [exercises.length]); // only run when exercises.length changes
+  React.useEffect(
+    () => {
+      getExercises();
+    },
+    [exercises.length]
+  ); // only run when exercises.length changes
+
 
   // Assemble exercise list
   const ExercisesList = [];
@@ -57,10 +61,13 @@ export default function ExerciseScreen(props) {
   // Conditionally display exercise list, empty list text, or loading spinner
   let ListDisplay;
   if (isFetchingExercises) {
-    ListDisplay = <Spinner color={Colors.brandPrimary}/>
+    ListDisplay = <Spinner color={Colors.brandPrimary} />;
   } else if (exercises.length === 0) {
-    ListDisplay =
-    <Text style={styles.emptyListText}>exercises you add will appear here</Text>
+    ListDisplay = (
+      <Text style={styles.emptyListText}>
+        exercises you add will appear here
+      </Text>
+    );
   } else ListDisplay = <List>{ExercisesList}</List>;
 
   return (

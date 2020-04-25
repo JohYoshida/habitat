@@ -31,6 +31,10 @@ export default function ExerciseScreen(props) {
       });
   };
 
+  React.useEffect(() => {
+    getExercises()
+  }, [exercises.length]); // only run when exercises.length changes
+
   // Assemble exercise list
   const ExercisesList = [];
   exercises.forEach((exercise, index) => {

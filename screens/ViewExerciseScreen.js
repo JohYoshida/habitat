@@ -162,8 +162,11 @@ export default function ViewExerciseScreen(props) {
     <StyleProvider style={getTheme(platform)}>
       <Container>
         <Content padder>
-          <Button block onPress={getWorkouts}>
+          <Button block bordered onPress={getWorkouts}>
             <Text>Get workouts</Text>
+          </Button>
+          <Button block bordered onPress={() => props.navigation.navigate("Add Workout", { exercise: props.route.params.exercise, getWorkouts })}>
+            <Text>Add workout</Text>
           </Button>
           {ListDisplay}
         </Content>

@@ -68,10 +68,13 @@ export default function ViewExerciseScreen(props) {
   const WorkoutsList = [];
   workouts.forEach((workout, index) => {
     let timestamp = moment(workout.createdAt).format("h:mm a MM-DD-YYYY");
+    let name = props.route.params.exercise.name.toLowerCase();
+    let sum = `${workout.sets * workout.reps} ${name}`
     WorkoutsList.push(
       <ListItem
         key={index}
         title={`${workout.reps} reps, ${workout.sets} sets`}
+        rightTitle={sum}
         subtitle={timestamp}
       />
     );

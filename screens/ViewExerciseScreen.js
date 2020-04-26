@@ -21,10 +21,12 @@ const moment = require("moment");
 const URL = "https://habitat-server.herokuapp.com";
 
 export default function ViewExerciseScreen(props) {
-  const [confirmDelete, setConfirmDelete] = React.useState(false);
+  const [confirmDeleteExercise, setConfirmDeleteExercise] = React.useState(false);
+  const [confirmDeleteWorkout, setConfirmDeleteWorkout] = React.useState(false);
   const [workouts, setWorkouts] = React.useState([]);
   const [isFetchingWorkouts, setIsFetchingWorkouts] = React.useState(false);
-  const [listDeleteIndex, setListDeleteIndex] = React.useState(null);
+  const [workoutDeleteIndex, setWorkoutDeleteIndex] = React.useState(null);
+  const [workoutDeleteID, setWorkoutDeleteID] = React.useState(null);
 
   // Get workouts when the screen mounts or state updates
   React.useEffect(
@@ -34,6 +36,7 @@ export default function ViewExerciseScreen(props) {
     [workouts.length] // only run when workouts.length changes
   );
 
+  // Delete workout from server database by id
   const deleteExercise = () => {
     const { id, name } = props.route.params.exercise;
     fetch(`${URL}/exercise`, {
@@ -49,10 +52,29 @@ export default function ViewExerciseScreen(props) {
       .then(json => {
         props.route.params.getExercises();
         props.navigation.goBack();
-        setConfirmDelete(false);
+        setConfirmDeleteExercise(false);
       });
   };
 
+  const deleteWorkout = () => {
+    fetch(`${URL}/workout`, {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Methods": "DELETE"
+      },
+      body: JSON.stringify({ id: workoutDeleteID })
+    })
+      .then(res => res.json())
+      .then(json => {
+        setWorkoutDeleteID(null);
+        setWorkoutDeleteIndex(null);
+        getWorkouts();
+      })
+  }
+
+  // Get all workouts matching exercise by id from server database
   const getWorkouts = () => {
     setIsFetchingWorkouts(true);
     const exercise_id = props.route.params.exercise.id;
@@ -79,16 +101,35 @@ export default function ViewExerciseScreen(props) {
         rightTitle={sum}
         subtitle={timestamp}
         onPress={() => {
-          if (index === listDeleteIndex) setListDeleteIndex(null)
-          else setListDeleteIndex(index);
+          if (index === workoutDeleteIndex) {
+            setWorkoutDeleteIndex(null)
+            setWorkoutDeleteID(null)
+          } else {
+            setWorkoutDeleteIndex(index);
+            setWorkoutDeleteID(workout.id);
+          }
         }}
       />
     );
   });
 
+  // Conditional rendering for workout delete/confirm buttons
+  let DeleteWorkoutButtons;
+  if (confirmDeleteWorkout) {
+    DeleteWorkoutButtons = (
+      <ConfirmDeletionButtons key={"confirmDelete"} confirm={deleteWorkout} cancel={() => setConfirmDeleteWorkout(false)}/>
+    );
+  } else {
+    DeleteWorkoutButtons = (
+      <Button block bordered danger key={"delete"} onPress={() => setConfirmDeleteWorkout(true)}>
+        <Text>Delete Workout</Text>
+      </Button>
+    )
+  }
+
   // Conditionally render delete buttons in workout list
-  if (listDeleteIndex !== null) {
-    WorkoutsList.splice(listDeleteIndex + 1, 0, <Button><Text>Delete</Text></Button>).join();
+  if (workoutDeleteIndex !== null) {
+    WorkoutsList.splice(workoutDeleteIndex + 1, 0, DeleteWorkoutButtons).join();
   }
 
   // Conditionally display workouts list, empty list text, or loading spinner
@@ -103,15 +144,15 @@ export default function ViewExerciseScreen(props) {
     );
   } else ListDisplay = <List>{WorkoutsList}</List>;
 
-  // Conditional rendering for delete/confirm buttons
+  // Conditional rendering for exercise delete/confirm buttons
   let DeleteExerciseButtons;
-  if (confirmDelete) {
+  if (confirmDeleteExercise) {
     DeleteExerciseButtons = (
-      <ConfirmDeletionButtons confirm={deleteExercise} cancel={() => setConfirmDelete(false)}/>
+      <ConfirmDeletionButtons confirm={deleteExercise} cancel={() => setConfirmDeleteExercise(false)}/>
     );
   } else {
     DeleteExerciseButtons = (
-      <Button block bordered danger onPress={() => setConfirmDelete(true)}>
+      <Button block bordered danger onPress={() => setConfirmDeleteExercise(true)}>
         <Text>Delete {props.route.params.exercise.name}</Text>
       </Button>
     );
@@ -125,8 +166,10 @@ export default function ViewExerciseScreen(props) {
             <Text>Get workouts</Text>
           </Button>
           {ListDisplay}
-          {DeleteExerciseButtons}
         </Content>
+        <View style={styles.deleteExerciseButtons}>
+          {DeleteExerciseButtons}
+        </View>
       </Container>
     </StyleProvider>
   );
@@ -137,5 +180,8 @@ const styles = StyleSheet.create({
     color: "#BDBDBD",
     textAlign: "center",
     marginVertical: 20
+  },
+  deleteExerciseButtons: {
+    margin: 10,
   }
 });

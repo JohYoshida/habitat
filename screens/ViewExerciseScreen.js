@@ -40,7 +40,7 @@ export default function ViewExerciseScreen(props) {
 
   // Delete exercise from server database by id
   const deleteExercise = () => {
-    const { id, name } = props.route.params.exercise;
+    let { id, name } = props.route.params.exercise;
     fetch(`${URL}/exercise`, {
       method: "DELETE",
       headers: {
@@ -91,30 +91,80 @@ export default function ViewExerciseScreen(props) {
       });
   };
 
-  // Assemble workouts list
-  const WorkoutsList = [];
+  // Assemble workouts lists
+  let todayTotal = 0,
+    yesterdayTotal = 0,
+    thisWeekTotal = 0,
+    lifetimeTotal = 0;
+  const TodaysList = [];
+  const YesterdaysList = [];
+  let name = props.route.params.exercise.name.toLowerCase();
   workouts.forEach((workout, index) => {
     let timestamp = moment(workout.createdAt).format("h:mm a MM-DD-YYYY");
-    let name = props.route.params.exercise.name.toLowerCase();
-    let sum = `${workout.sets * workout.reps} ${name}`;
-    WorkoutsList.push(
-      <ListItem
-        key={index}
-        title={`${workout.reps} reps, ${workout.sets} sets`}
-        rightTitle={sum}
-        subtitle={timestamp}
-        onPress={() => {
-          if (index === workoutDeleteIndex) {
-            setWorkoutDeleteIndex(null);
-            setWorkoutDeleteID(null);
-          } else {
-            setWorkoutDeleteIndex(index);
-            setWorkoutDeleteID(workout.id);
-          }
-        }}
-      />
-    );
+    let sum = workout.sets * workout.reps;
+    let diff = moment().diff(moment(workout.createdAt), "days");
+    lifetimeTotal += sum;
+    if (diff < 7) thisWeekTotal += sum;
+    if (diff === 0) {
+      // Construct TodaysList
+      todayTotal += sum;
+      TodaysList.push(
+        <ListItem
+          key={index}
+          title={`${workout.reps} reps, ${workout.sets} sets`}
+          rightTitle={`${sum} ${name}`}
+          subtitle={timestamp}
+          onPress={() => {
+            if (index === workoutDeleteIndex) {
+              setWorkoutDeleteIndex(null);
+              setWorkoutDeleteID(null);
+            } else {
+              setWorkoutDeleteIndex(index);
+              setWorkoutDeleteID(workout.id);
+            }
+          }}
+        />
+      );
+    } else if (diff === 1) {
+      // Construct YesterdaysList
+      yesterdayTotal += sum;
+      YesterdaysList.push(
+        <ListItem
+          key={index}
+          title={`${workout.reps} reps, ${workout.sets} sets`}
+          rightTitle={`${sum} ${name}`}
+          subtitle={timestamp}
+          onPress={() => {
+            if (index === workoutDeleteIndex) {
+              setWorkoutDeleteIndex(null);
+              setWorkoutDeleteID(null);
+            } else {
+              setWorkoutDeleteIndex(index);
+              setWorkoutDeleteID(workout.id);
+            }
+          }}
+        />
+      );
+    }
   });
+  TodaysList.unshift(
+    <ListItem
+      key="today"
+      title="Today"
+      topDivider={true}
+      bottomDivider={true}
+      rightTitle={`${todayTotal} ${name}`}
+    />
+  );
+  YesterdaysList.unshift(
+    <ListItem
+      key="yesterday"
+      title="Yesterday"
+      topDivider={true}
+      bottomDivider={true}
+      rightTitle={`${yesterdayTotal} ${name}`}
+    />
+  );
 
   // Conditional rendering for workout delete/confirm buttons
   let DeleteWorkoutButtons;
@@ -142,7 +192,7 @@ export default function ViewExerciseScreen(props) {
 
   // Conditionally render delete buttons in workout list
   if (workoutDeleteIndex !== null) {
-    WorkoutsList.splice(workoutDeleteIndex + 1, 0, DeleteWorkoutButtons).join();
+    TodaysList.splice(workoutDeleteIndex + 2, 0, DeleteWorkoutButtons).join();
   }
 
   // Conditionally display workouts list, empty list text, or loading spinner
@@ -155,7 +205,27 @@ export default function ViewExerciseScreen(props) {
         workouts you add will appear here
       </Text>
     );
-  } else ListDisplay = <List>{WorkoutsList}</List>;
+  } else
+    ListDisplay = (
+      <View>
+        <List>{TodaysList}</List>
+        <List>{YesterdaysList}</List>
+        <ListItem
+          key="thisWeekTotal"
+          title="This Week"
+          topDivider={true}
+          bottomDivider={true}
+          rightTitle={`${thisWeekTotal} ${name}`}
+        />
+        <ListItem
+          key="total"
+          title="Lifetime Total"
+          topDivider={true}
+          bottomDivider={true}
+          rightTitle={`${lifetimeTotal} ${name}`}
+        />
+      </View>
+    );
 
   // Conditional rendering for exercise delete/confirm buttons
   let DeleteExerciseButtons;
@@ -174,7 +244,7 @@ export default function ViewExerciseScreen(props) {
         danger
         onPress={() => setConfirmDeleteExercise(true)}
       >
-        <Text>Delete {props.route.params.exercise.name}</Text>
+        <Text>Delete {name}</Text>
       </Button>
     );
   }
@@ -192,15 +262,11 @@ export default function ViewExerciseScreen(props) {
               getWorkouts
             })
           }
-          >
+        >
           <Text>Add workout</Text>
         </Button>
-        <Content padder>
-          {ListDisplay}
-        </Content>
-        <View style={styles.buttons}>
-          {DeleteExerciseButtons}
-        </View>
+        <Content padder>{ListDisplay}</Content>
+        <View style={styles.buttons}>{DeleteExerciseButtons}</View>
       </Container>
     </StyleProvider>
   );

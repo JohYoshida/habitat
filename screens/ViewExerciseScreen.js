@@ -181,22 +181,23 @@ export default function ViewExerciseScreen(props) {
   return (
     <StyleProvider style={getTheme(platform)}>
       <Container>
-        <Content padder>
-          <Button
-            block
-            bordered
-            onPress={() =>
-              props.navigation.navigate("Add Workout", {
-                exercise: props.route.params.exercise,
-                getWorkouts
-              })
-            }
+        <Button
+          block
+          bordered
+          style={styles.buttons}
+          onPress={() =>
+            props.navigation.navigate("Add Workout", {
+              exercise: props.route.params.exercise,
+              getWorkouts
+            })
+          }
           >
-            <Text>Add workout</Text>
-          </Button>
+          <Text>Add workout</Text>
+        </Button>
+        <Content padder>
           {ListDisplay}
         </Content>
-        <View style={styles.deleteExerciseButtons}>
+        <View style={styles.buttons}>
           {DeleteExerciseButtons}
         </View>
       </Container>
@@ -210,7 +211,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginVertical: 20
   },
-  deleteExerciseButtons: {
+  buttons: {
     margin: 10
   }
 });

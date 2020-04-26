@@ -43,12 +43,13 @@ export default function AddWorkoutScreen(props) {
   // Submit form
   const submitWorkout = () => {
     let exercise_id;
-    if (exercises) { // navigated from ExerciseScreen
+    if (exercises) {
+      // navigated from ExerciseScreen
       exercise_id = exercises[selectedExerciseIndex].id;
-    } else if (exercise) { // navigated from ViewExerciseScreen
+    } else if (exercise) {
+      // navigated from ViewExerciseScreen
       exercise_id = exercise.id;
     }
-    console.log(exercise_id);
     fetch(`${URL}/workout`, {
       method: "POST",
       headers: {
@@ -141,7 +142,8 @@ export default function AddWorkoutScreen(props) {
 
   // Conditional display for picker depending on where user navigated from
   let ExerciseDisplay;
-  if (exercises) { // navigation from ExerciseScreen
+  if (exercises) {
+    // navigation from ExerciseScreen
     ExerciseDisplay = [
       <Item picker key={0}>
         <Picker
@@ -165,17 +167,17 @@ export default function AddWorkoutScreen(props) {
       >
         <Text>or add exercise</Text>
       </Button>
-    ]
-  } else if (exercise) { // navigation from ViewExerciseScreen
+    ];
+  } else if (exercise) {
+    // navigation from ViewExerciseScreen
     ExerciseDisplay = [
       <Item picker key={0}>
-        <Picker enabled={false} >
+        <Picker enabled={false}>
           <Picker.Item label={exercise.name} value={0} key={exercise.id} />
         </Picker>
       </Item>,
-      <Button block transparent key={1} >
-      </Button>
-    ]
+      <Button block transparent key={1} />
+    ];
   }
 
   return (

@@ -21,7 +21,9 @@ const moment = require("moment");
 const URL = "https://habitat-server.herokuapp.com";
 
 export default function ViewExerciseScreen(props) {
-  const [confirmDeleteExercise, setConfirmDeleteExercise] = React.useState(false);
+  const [confirmDeleteExercise, setConfirmDeleteExercise] = React.useState(
+    false
+  );
   const [confirmDeleteWorkout, setConfirmDeleteWorkout] = React.useState(false);
   const [workouts, setWorkouts] = React.useState([]);
   const [isFetchingWorkouts, setIsFetchingWorkouts] = React.useState(false);
@@ -71,8 +73,8 @@ export default function ViewExerciseScreen(props) {
         setWorkoutDeleteID(null);
         setWorkoutDeleteIndex(null);
         getWorkouts();
-      })
-  }
+      });
+  };
 
   // Get all workouts matching exercise by id from server database
   const getWorkouts = () => {
@@ -93,7 +95,7 @@ export default function ViewExerciseScreen(props) {
   workouts.forEach((workout, index) => {
     let timestamp = moment(workout.createdAt).format("h:mm a MM-DD-YYYY");
     let name = props.route.params.exercise.name.toLowerCase();
-    let sum = `${workout.sets * workout.reps} ${name}`
+    let sum = `${workout.sets * workout.reps} ${name}`;
     WorkoutsList.push(
       <ListItem
         key={index}
@@ -102,8 +104,8 @@ export default function ViewExerciseScreen(props) {
         subtitle={timestamp}
         onPress={() => {
           if (index === workoutDeleteIndex) {
-            setWorkoutDeleteIndex(null)
-            setWorkoutDeleteID(null)
+            setWorkoutDeleteIndex(null);
+            setWorkoutDeleteID(null);
           } else {
             setWorkoutDeleteIndex(index);
             setWorkoutDeleteID(workout.id);
@@ -117,14 +119,24 @@ export default function ViewExerciseScreen(props) {
   let DeleteWorkoutButtons;
   if (confirmDeleteWorkout) {
     DeleteWorkoutButtons = (
-      <ConfirmDeletionButtons key={"confirmDelete"} confirm={deleteWorkout} cancel={() => setConfirmDeleteWorkout(false)}/>
+      <ConfirmDeletionButtons
+        key={"confirmDelete"}
+        confirm={deleteWorkout}
+        cancel={() => setConfirmDeleteWorkout(false)}
+      />
     );
   } else {
     DeleteWorkoutButtons = (
-      <Button block bordered danger key={"delete"} onPress={() => setConfirmDeleteWorkout(true)}>
+      <Button
+        block
+        bordered
+        danger
+        key={"delete"}
+        onPress={() => setConfirmDeleteWorkout(true)}
+      >
         <Text>Delete Workout</Text>
       </Button>
-    )
+    );
   }
 
   // Conditionally render delete buttons in workout list
@@ -148,11 +160,19 @@ export default function ViewExerciseScreen(props) {
   let DeleteExerciseButtons;
   if (confirmDeleteExercise) {
     DeleteExerciseButtons = (
-      <ConfirmDeletionButtons confirm={deleteExercise} cancel={() => setConfirmDeleteExercise(false)}/>
+      <ConfirmDeletionButtons
+        confirm={deleteExercise}
+        cancel={() => setConfirmDeleteExercise(false)}
+      />
     );
   } else {
     DeleteExerciseButtons = (
-      <Button block bordered danger onPress={() => setConfirmDeleteExercise(true)}>
+      <Button
+        block
+        bordered
+        danger
+        onPress={() => setConfirmDeleteExercise(true)}
+      >
         <Text>Delete {props.route.params.exercise.name}</Text>
       </Button>
     );
@@ -165,7 +185,16 @@ export default function ViewExerciseScreen(props) {
           <Button block bordered onPress={getWorkouts}>
             <Text>Get workouts</Text>
           </Button>
-          <Button block bordered onPress={() => props.navigation.navigate("Add Workout", { exercise: props.route.params.exercise, getWorkouts })}>
+          <Button
+            block
+            bordered
+            onPress={() =>
+              props.navigation.navigate("Add Workout", {
+                exercise: props.route.params.exercise,
+                getWorkouts
+              })
+            }
+          >
             <Text>Add workout</Text>
           </Button>
           {ListDisplay}
@@ -185,6 +214,6 @@ const styles = StyleSheet.create({
     marginVertical: 20
   },
   deleteExerciseButtons: {
-    margin: 10,
+    margin: 10
   }
 });

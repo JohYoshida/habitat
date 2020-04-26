@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { ButtonGroup, Input } from "react-native-elements";
 import {
   Button,
@@ -12,6 +12,7 @@ import {
   StyleProvider,
   Text
 } from "native-base";
+import NumberPad from "../components/NumberPad";
 import Colors from "../constants/Colors";
 // Native base theme requirements
 import getTheme from "../native-base-theme/components";
@@ -33,6 +34,14 @@ export default function AddWorkoutScreen(props) {
   const [selectedRepsIndex, updateRepsIndex] = React.useState();
   const inputReps = React.createRef();
   const repsButtons = ["5", "10", "custom"];
+
+  // Hooks for time
+  const [seconds, updateSeconds] = React.useState(0);
+  const [minutes, updateMinutes] = React.useState(0);
+  const [hours, updateHours] = React.useState(0);
+
+  // Hook for input mode
+  const [mode, setMode] = React.useState("repsAndSets");
 
   // Hoops for selecting an exercise
   const { exercise, getWorkouts, exercises, getExercises } = props.route.params;
@@ -180,56 +189,96 @@ export default function AddWorkoutScreen(props) {
     ];
   }
 
+  // Conditional rendering for reps and sets mode and time mode inputs
+  let InputDisplay;
+  if (mode === "repsAndSets") {
+    InputDisplay = (
+      <View>
+        <Item fixedLabel>
+          <Label>Reps</Label>
+        </Item>
+        <ButtonGroup
+          onPress={index => {
+            updateRepsIndex(index);
+            if (repsButtons[index] !== "custom") updateReps(repsButtons[index]);
+            else updateReps("");
+          }}
+          selectedIndex={selectedRepsIndex}
+          buttons={repsButtons}
+          selectedButtonStyle={styles.selectedButtonStyle}
+        />
+        {InputCustomReps}
+        <Item fixedLabel>
+          <Label>Sets</Label>
+        </Item>
+        <ButtonGroup
+          onPress={index => {
+            updateSetsIndex(index);
+            if (setsButtons[index] !== "custom") updateSets(setsButtons[index]);
+            else updateSets("");
+          }}
+          selectedIndex={selectedSetsIndex}
+          buttons={setsButtons}
+          selectedButtonStyle={styles.selectedButtonStyle}
+        />
+        {InputCustomSets}
+        <Button block transparent onPress={() => setMode("time")}>
+          <Text>switch to time</Text>
+        </Button>
+      </View>
+    );
+  } else if (mode === "time") {
+    // Setup initial value
+    let initialValue = `${hours.toString()}${minutes.toString()}${seconds.toString()}`;
+    initialValue = "000000".slice(0, -initialValue.length) + initialValue;
+
+    InputDisplay = (
+      <View>
+        <NumberPad
+          initialValue={initialValue}
+          callback={string => {
+            updateHours(Number(string.slice(0, 2)));
+            updateMinutes(Number(string.slice(2, 4)));
+            updateSeconds(Number(string.slice(4, 6)));
+          }}
+        />
+        <Button block transparent onPress={() => setMode("repsAndSets")}>
+          <Text>switch to reps and sets</Text>
+        </Button>
+      </View>
+    );
+  }
+
   return (
     <StyleProvider style={getTheme(platform)}>
       <Container>
         <Content padder>
           <Form>
             {ExerciseDisplay}
-            <Item fixedLabel>
-              <Label>Reps</Label>
-            </Item>
-            <ButtonGroup
-              onPress={index => {
-                updateRepsIndex(index);
-                if (repsButtons[index] !== "custom")
-                  updateReps(repsButtons[index]);
-                else updateReps("");
-              }}
-              selectedIndex={selectedRepsIndex}
-              buttons={repsButtons}
-              selectedButtonStyle={styles.selectedButtonStyle}
-            />
-            {InputCustomReps}
-
-            <Item fixedLabel>
-              <Label>Sets</Label>
-            </Item>
-            <ButtonGroup
-              onPress={index => {
-                updateSetsIndex(index);
-                if (setsButtons[index] !== "custom")
-                  updateSets(setsButtons[index]);
-                else updateSets("");
-              }}
-              selectedIndex={selectedSetsIndex}
-              buttons={setsButtons}
-              selectedButtonStyle={styles.selectedButtonStyle}
-            />
-            {InputCustomSets}
+            {InputDisplay}
           </Form>
-
-          <Button block onPress={submitWorkout}>
-            <Text>Submit</Text>
-          </Button>
-
-          <Button block warning onPress={inputError.bind(this, "reps")}>
-            <Text>reps error</Text>
-          </Button>
-          <Button block warning onPress={inputError.bind(this, "sets")}>
-            <Text>sets error</Text>
-          </Button>
         </Content>
+        <Button
+          style={styles.buttons}
+          block
+          warning
+          bordered
+          onPress={inputError.bind(this, "reps")}
+        >
+          <Text>reps error</Text>
+        </Button>
+        <Button
+          style={styles.buttons}
+          block
+          warning
+          bordered
+          onPress={inputError.bind(this, "sets")}
+        >
+          <Text>sets error</Text>
+        </Button>
+        <Button style={styles.buttons} block onPress={submitWorkout}>
+          <Text>Submit</Text>
+        </Button>
       </Container>
     </StyleProvider>
   );
@@ -242,5 +291,8 @@ const styles = StyleSheet.create({
   },
   selectedButtonStyle: {
     backgroundColor: Colors.brandPrimary
+  },
+  buttons: {
+    margin: 10
   }
 });

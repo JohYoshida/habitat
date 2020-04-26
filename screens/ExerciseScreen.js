@@ -82,14 +82,24 @@ export default function ExerciseScreen(props) {
             <ActionButton.Item
               title="Add Exercise"
               buttonColor={Colors.brandPrimary}
-              onPress={() => props.navigation.navigate("Add Exercise")}
+              onPress={() =>
+                props.navigation.navigate("Add Exercise", {
+                  exercises,
+                  getExercises
+                })
+              }
             >
               <Icon name="add" style={styles.actionButtonIcon} />
             </ActionButton.Item>
             <ActionButton.Item
               title="Add Workout"
               buttonColor={Colors.brandPrimary}
-              onPress={() => props.navigation.navigate("Add Workout")}
+              onPress={() =>
+                props.navigation.navigate("Add Workout", {
+                  exercises,
+                  getExercises
+                })
+              }
             >
               <Icon name="add" style={styles.actionButtonIcon} />
             </ActionButton.Item>

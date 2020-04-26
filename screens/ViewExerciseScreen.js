@@ -23,6 +23,7 @@ export default function ViewExerciseScreen(props) {
   const [confirmDelete, setConfirmDelete] = React.useState(false);
   const [workouts, setWorkouts] = React.useState([]);
   const [isFetchingWorkouts, setIsFetchingWorkouts] = React.useState(false);
+  const [listDeleteIndex, setListDeleteIndex] = React.useState(null);
 
   // Get workouts when the screen mounts or state updates
   React.useEffect(
@@ -76,13 +77,21 @@ export default function ViewExerciseScreen(props) {
         title={`${workout.reps} reps, ${workout.sets} sets`}
         rightTitle={sum}
         subtitle={timestamp}
+        onPress={() => {
+          if (index === listDeleteIndex) setListDeleteIndex(null)
+          else setListDeleteIndex(index);
+        }}
       />
     );
   });
 
+  // Conditionally render delete buttons in workout list
+  if (listDeleteIndex !== null) {
+    WorkoutsList.splice(listDeleteIndex + 1, 0, <Button><Text>Delete</Text></Button>).join();
+  }
+
   // Conditionally display workouts list, empty list text, or loading spinner
   let ListDisplay;
-  console.log(isFetchingWorkouts);
   if (isFetchingWorkouts) {
     ListDisplay = <Spinner color={Colors.brandPrimary} />;
   } else if (workouts.length === 0) {

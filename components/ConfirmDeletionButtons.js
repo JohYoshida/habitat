@@ -1,9 +1,6 @@
 import * as React from "react";
 import { View } from "react-native";
 import { Button, Text } from "native-base";
-// Native base theme requirements
-import getTheme from "../native-base-theme/components";
-import platform from "../native-base-theme/variables/platform";
 
 export function ConfirmDeletionButtons(props) {
   return (

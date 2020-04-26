@@ -9,13 +9,15 @@ import getTheme from "../native-base-theme/components";
 import platform from "../native-base-theme/variables/platform";
 
 export default function NumberPad(props) {
-  const [hours, setHours] = React.useState("00");
-  const [minutes, setMinutes] = React.useState("00");
-  const [seconds, setSeconds] = React.useState("00");
-  const [amount, setAmount] = React.useState("");
+  let { initialValue } = props;
+  initialValue ? initialValue : "000000"
+  const [hours, setHours] = React.useState(initialValue.slice(0, 2));
+  const [minutes, setMinutes] = React.useState(initialValue.slice(2, 4));
+  const [seconds, setSeconds] = React.useState(initialValue.slice(4, 6));
+  const [amount, setAmount] = React.useState(Number(initialValue) !== 0 ? Number(initialValue).toString() : "");
 
   const updateAmount = value => {
-    let num; // Up to 5 digits. No leading zeroes
+    let num; // Up to 6 digits. No leading zeroes
     let str; // Will always be 6 digits, including any leading zeroes
     if (value === "back")  {
       num = amount.slice(0, -1);

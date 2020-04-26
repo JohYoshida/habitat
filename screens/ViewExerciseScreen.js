@@ -10,6 +10,7 @@ import {
   StyleProvider,
   Text
 } from "native-base";
+import { ConfirmDeletionButtons } from "../components/ConfirmDeletionButtons";
 import Colors from "../constants/Colors";
 // Native base theme requirements
 import getTheme from "../native-base-theme/components";
@@ -103,20 +104,13 @@ export default function ViewExerciseScreen(props) {
   } else ListDisplay = <List>{WorkoutsList}</List>;
 
   // Conditional rendering for delete/confirm buttons
-  let DeleteButton;
+  let DeleteExerciseButtons;
   if (confirmDelete) {
-    DeleteButton = (
-      <View>
-        <Button block danger onPress={deleteExercise}>
-          <Text>Are you sure?</Text>
-        </Button>
-        <Button block onPress={() => setConfirmDelete(false)}>
-          <Text>Cancel</Text>
-        </Button>
-      </View>
+    DeleteExerciseButtons = (
+      <ConfirmDeletionButtons confirm={deleteExercise} cancel={() => setConfirmDelete(false)}/>
     );
   } else {
-    DeleteButton = (
+    DeleteExerciseButtons = (
       <Button block bordered danger onPress={() => setConfirmDelete(true)}>
         <Text>Delete {props.route.params.exercise.name}</Text>
       </Button>
@@ -131,7 +125,7 @@ export default function ViewExerciseScreen(props) {
             <Text>Get workouts</Text>
           </Button>
           {ListDisplay}
-          {DeleteButton}
+          {DeleteExerciseButtons}
         </Content>
       </Container>
     </StyleProvider>

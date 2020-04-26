@@ -182,9 +182,6 @@ export default function ViewExerciseScreen(props) {
     <StyleProvider style={getTheme(platform)}>
       <Container>
         <Content padder>
-          <Button block bordered onPress={getWorkouts}>
-            <Text>Get workouts</Text>
-          </Button>
           <Button
             block
             bordered

@@ -34,15 +34,21 @@ export default function AddWorkoutScreen(props) {
   const inputReps = React.createRef();
   const repsButtons = ["5", "10", "custom"];
 
-  const { exercises, getExercises } = props.route.params;
-
+  // Hoops for selecting an exercise
+  const { exercise, getWorkouts, exercises, getExercises } = props.route.params;
   const [selectedExerciseIndex, setSelectedExercise] = React.useState(
-    exercises.length > 0 ? exercises[0] : "add exercise"
+    exercises && exercises.length > 0 ? exercises[0] : "add exercise"
   );
 
   // Submit form
   const submitWorkout = () => {
-    let exercise_id = exercises[selectedExerciseIndex].id;
+    let exercise_id;
+    if (exercises) { // navigated from ExerciseScreen
+      exercise_id = exercises[selectedExerciseIndex].id;
+    } else if (exercise) { // navigated from ViewExerciseScreen
+      exercise_id = exercise.id;
+    }
+    console.log(exercise_id);
     fetch(`${URL}/workout`, {
       method: "POST",
       headers: {
@@ -57,6 +63,9 @@ export default function AddWorkoutScreen(props) {
     })
       .then(res => res.json())
       .then(json => {
+        if (exercise) {
+          getWorkouts();
+        }
         props.navigation.goBack();
       });
   };
@@ -118,38 +127,63 @@ export default function AddWorkoutScreen(props) {
   // TODO: make this list update dynamically when new workout
   // is added from downstack of this screen
   const PickerList = [];
-  exercises.forEach((item, index) => {
+  if (exercises) {
+    exercises.forEach((item, index) => {
+      PickerList.push(
+        <Picker.Item label={item.name} value={index} key={item.id} />
+      );
+    });
+  } else if (exercise) {
     PickerList.push(
-      <Picker.Item label={item.name} value={index} key={item.id} />
+      <Picker.Item label={exercise.name} value={0} key={exercise.id} />
     );
-  });
+  }
+
+  // Conditional display for picker depending on where user navigated from
+  let ExerciseDisplay;
+  if (exercises) { // navigation from ExerciseScreen
+    ExerciseDisplay = [
+      <Item picker key={0}>
+        <Picker
+          selectedValue={selectedExerciseIndex}
+          onValueChange={value => setSelectedExercise(value)}
+          placeholder="select a workout"
+        >
+          {PickerList}
+        </Picker>
+      </Item>,
+      <Button
+        block
+        transparent
+        key={1}
+        onPress={() =>
+          props.navigation.navigate("Add Exercise", {
+            exercises,
+            getExercises
+          })
+        }
+      >
+        <Text>or add exercise</Text>
+      </Button>
+    ]
+  } else if (exercise) { // navigation from ViewExerciseScreen
+    ExerciseDisplay = [
+      <Item picker key={0}>
+        <Picker enabled={false} >
+          <Picker.Item label={exercise.name} value={0} key={exercise.id} />
+        </Picker>
+      </Item>,
+      <Button block transparent key={1} >
+      </Button>
+    ]
+  }
 
   return (
     <StyleProvider style={getTheme(platform)}>
       <Container>
         <Content padder>
           <Form>
-            <Item picker>
-              <Picker
-                selectedValue={selectedExerciseIndex}
-                onValueChange={value => setSelectedExercise(value)}
-                placeholder="select a workout"
-              >
-                {PickerList}
-              </Picker>
-            </Item>
-            <Button
-              block
-              transparent
-              onPress={() =>
-                props.navigation.navigate("Add Exercise", {
-                  exercises,
-                  getExercises
-                })
-              }
-            >
-              <Text>or add exercise</Text>
-            </Button>
+            {ExerciseDisplay}
             <Item fixedLabel>
               <Label>Reps</Label>
             </Item>

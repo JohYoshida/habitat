@@ -38,7 +38,7 @@ export default function ViewExerciseScreen(props) {
     [workouts.length] // only run when workouts.length changes
   );
 
-  // Delete workout from server database by id
+  // Delete exercise from server database by id
   const deleteExercise = () => {
     const { id, name } = props.route.params.exercise;
     fetch(`${URL}/exercise`, {
@@ -58,6 +58,7 @@ export default function ViewExerciseScreen(props) {
       });
   };
 
+  // Delete workout from server database by id
   const deleteWorkout = () => {
     fetch(`${URL}/workout`, {
       method: "DELETE",

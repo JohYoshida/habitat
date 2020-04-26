@@ -59,17 +59,28 @@ export default function AddWorkoutScreen(props) {
       // navigated from ViewExerciseScreen
       exercise_id = exercise.id;
     }
+    let body = {};
+    if (mode === "repsAndSets") {
+      body = JSON.stringify({
+        exercise_id,
+        reps,
+        sets
+      });
+    } else if (mode === "time") {
+      let totalSeconds = seconds + minutes * 60 + hours * 3600;
+      console.log(totalSeconds);
+      body = JSON.stringify({
+        exercise_id,
+        seconds: totalSeconds
+      });
+    }
     fetch(`${URL}/workout`, {
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        exercise_id,
-        reps,
-        sets
-      })
+      body
     })
       .then(res => res.json())
       .then(json => {

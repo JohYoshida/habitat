@@ -71,11 +71,41 @@ export default function ExerciseScreen(props) {
     );
   } else ListDisplay = <List>{ExercisesList}</List>;
 
+  // temporary buttons for ease of navigation
+  const NavButtons = (
+    <View>
+      <Button
+        block
+        bordered
+        warning
+        onPress={() =>
+          props.navigation.navigate("Add Exercise", { exercises, getExercises })
+        }
+      >
+        <Text>go to add exercise</Text>
+      </Button>
+      <Button
+        block
+        bordered
+        warning
+        onPress={() =>
+          props.navigation.navigate("Add Workout", { exercises, getExercises })
+        }
+      >
+        <Text>go to add workout</Text>
+      </Button>
+      <Button block bordered warning onPress={getExercises}>
+        <Text>Get exercises</Text>
+      </Button>
+    </View>
+  );
+
   return (
     <StyleProvider style={getTheme(platform)}>
       <Container>
         <View style={styles.container}>
           <Content padder>
+            {NavButtons}
             {ListDisplay}
           </Content>
           <ActionButton buttonColor={Colors.brandPrimary}>

@@ -198,7 +198,7 @@ export default function AddWorkoutScreen(props) {
               }}
               selectedIndex={selectedRepsIndex}
               buttons={repsButtons}
-              selectedButtonStyle={{ backgroundColor: "#2196F3" }}
+              selectedButtonStyle={styles.selectedButtonStyle}
             />
             {InputCustomReps}
 
@@ -214,7 +214,7 @@ export default function AddWorkoutScreen(props) {
               }}
               selectedIndex={selectedSetsIndex}
               buttons={setsButtons}
-              selectedButtonStyle={{ backgroundColor: "#2196F3" }}
+              selectedButtonStyle={styles.selectedButtonStyle}
             />
             {InputCustomSets}
           </Form>

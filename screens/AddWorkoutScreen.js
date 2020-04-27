@@ -22,18 +22,18 @@ const URL = "https://habitat-server.herokuapp.com";
 
 export default function AddWorkoutScreen(props) {
   // Hooks for sets, set input/errors
+  const setsButtons = ["1", "2", "3", "custom"];
   const [sets, updateSets] = React.useState();
   const [errorTextSets, updateErrorTextSets] = React.useState();
-  const [selectedSetsIndex, updateSetsIndex] = React.useState();
+  const [selectedSetsIndex, updateSetsIndex] = React.useState(0);
   const inputSets = React.createRef();
-  const setsButtons = ["1", "2", "3", "custom"];
 
   // Hooks for reps, rep input/errors
+  const repsButtons = ["5", "10", "custom"];
   const [reps, updateReps] = React.useState();
   const [errorTextReps, updateErrorTextReps] = React.useState();
-  const [selectedRepsIndex, updateRepsIndex] = React.useState();
+  const [selectedRepsIndex, updateRepsIndex] = React.useState(repsButtons.length - 1);
   const inputReps = React.createRef();
-  const repsButtons = ["5", "10", "custom"];
 
   // Hooks for time
   const [seconds, updateSeconds] = React.useState(0);
@@ -135,6 +135,7 @@ export default function AddWorkoutScreen(props) {
       <Input
         ref={inputReps}
         value={reps}
+        keyboardType="numeric"
         placeholder={errorTextReps ? errorTextReps : "number of reps"}
         onChangeText={text => {
           updateErrorTextReps(null);
@@ -268,25 +269,25 @@ export default function AddWorkoutScreen(props) {
             {ExerciseDisplay}
             {InputDisplay}
           </Form>
+          <Button
+            style={styles.buttons}
+            block
+            warning
+            bordered
+            onPress={inputError.bind(this, "reps")}
+            >
+            <Text>reps error</Text>
+          </Button>
+          <Button
+            style={styles.buttons}
+            block
+            warning
+            bordered
+            onPress={inputError.bind(this, "sets")}
+            >
+            <Text>sets error</Text>
+          </Button>
         </Content>
-        <Button
-          style={styles.buttons}
-          block
-          warning
-          bordered
-          onPress={inputError.bind(this, "reps")}
-        >
-          <Text>reps error</Text>
-        </Button>
-        <Button
-          style={styles.buttons}
-          block
-          warning
-          bordered
-          onPress={inputError.bind(this, "sets")}
-        >
-          <Text>sets error</Text>
-        </Button>
         <Button style={styles.buttons} block onPress={submitWorkout}>
           <Text>Submit</Text>
         </Button>

@@ -108,18 +108,18 @@ export default function ViewExerciseScreen(props) {
     if (diff === 0) {
       // Construct TodaysList
       todayTotal += sum;
-      TodaysList.push(
+      TodaysList.unshift(
         <ListItem
-          key={index}
           title={`${workout.reps} reps, ${workout.sets} sets`}
           rightTitle={`${sum} ${name}`}
+          key={workouts.length - 1 - index}
           subtitle={timestamp}
           onPress={() => {
-            if (index === workoutDeleteIndex) {
+            if (workouts.length - 1 - index === workoutDeleteIndex) {
               setWorkoutDeleteIndex(null);
               setWorkoutDeleteID(null);
             } else {
-              setWorkoutDeleteIndex(index);
+              setWorkoutDeleteIndex(workouts.length - 1 - index);
               setWorkoutDeleteID(workout.id);
             }
           }}
@@ -128,18 +128,18 @@ export default function ViewExerciseScreen(props) {
     } else if (diff === 1) {
       // Construct YesterdaysList
       yesterdayTotal += sum;
-      YesterdaysList.push(
+      YesterdaysList.unshift(
         <ListItem
-          key={index}
           title={`${workout.reps} reps, ${workout.sets} sets`}
           rightTitle={`${sum} ${name}`}
+          key={workouts.length - 1 - index}
           subtitle={timestamp}
           onPress={() => {
-            if (index === workoutDeleteIndex) {
+            if (workouts.length - 1 - index === workoutDeleteIndex) {
               setWorkoutDeleteIndex(null);
               setWorkoutDeleteID(null);
             } else {
-              setWorkoutDeleteIndex(index);
+              setWorkoutDeleteIndex(workouts.length - 1 - index);
               setWorkoutDeleteID(workout.id);
             }
           }}
@@ -192,6 +192,8 @@ export default function ViewExerciseScreen(props) {
 
   // Conditionally render delete buttons in workout list
   if (workoutDeleteIndex !== null) {
+    // TODO: display these buttons in other lists as well, or better yet,
+    // find a way to combine all the lists without the headers messing things up
     TodaysList.splice(workoutDeleteIndex + 2, 0, DeleteWorkoutButtons).join();
   }
 

@@ -9,8 +9,7 @@ import getTheme from "../native-base-theme/components";
 import platform from "../native-base-theme/variables/platform";
 
 export default function NumberPad(props) {
-  let { initialValue } = props;
-  initialValue ? initialValue : "000000";
+  const initialValue = props.initialValue ? props.initialValue : "000000";
   const [hours, setHours] = React.useState(initialValue.slice(0, 2));
   const [minutes, setMinutes] = React.useState(initialValue.slice(2, 4));
   const [seconds, setSeconds] = React.useState(initialValue.slice(4, 6));

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { StyleSheet, View } from "react-native";
-import { ButtonGroup, Input } from "react-native-elements";
+import { ButtonGroup } from "react-native-elements";
 import {
   Button,
   Container,
@@ -24,16 +24,12 @@ export default function AddWorkoutScreen(props) {
   // Hooks for sets, set input/errors
   const setsButtons = ["1", "2", "3", "custom"];
   const [sets, updateSets] = React.useState("1");
-  const [errorTextSets, updateErrorTextSets] = React.useState();
   const [selectedSetsIndex, updateSetsIndex] = React.useState(0);
-  const inputSets = React.createRef();
 
   // Hooks for reps, rep input/errors
   const repsButtons = ["5", "10", "custom"];
-  const [reps, updateReps] = React.useState();
-  const [errorTextReps, updateErrorTextReps] = React.useState();
+  const [reps, updateReps] = React.useState("0");
   const [selectedRepsIndex, updateRepsIndex] = React.useState(repsButtons.length - 1);
-  const inputReps = React.createRef();
 
   // Hooks for time
   const [seconds, updateSeconds] = React.useState(0);
@@ -91,22 +87,6 @@ export default function AddWorkoutScreen(props) {
       });
   };
 
-  // Handle text input errors
-  const inputError = id => {
-    switch (id) {
-      case "reps":
-        inputReps.current.shake();
-        updateReps("");
-        updateErrorTextReps("invalid entry");
-        break;
-      case "sets":
-        inputSets.current.shake();
-        updateSets("");
-        updateErrorTextSets("invalid entry");
-        break;
-      default:
-    }
-  };
 
   // Conditional rendering for custom sets input
   let InputCustomSets;
@@ -114,12 +94,10 @@ export default function AddWorkoutScreen(props) {
   if (selectedSetsIndex == setsButtons.length - 1) {
     // display input
     InputCustomSets = (
-      <Input
-        ref={inputSets}
-        value={sets}
-        placeholder={errorTextSets ? errorTextSets : "number of sets"}
-        onChangeText={text => {
-          updateErrorTextSets(null);
+      <NumberPad
+        initialValue={0}
+        mode={"number"}
+        callback={text => {
           updateSets(text);
         }}
       />
@@ -132,13 +110,10 @@ export default function AddWorkoutScreen(props) {
   if (selectedRepsIndex == repsButtons.length - 1) {
     // display input
     InputCustomReps = (
-      <Input
-        ref={inputReps}
-        value={reps}
-        keyboardType="numeric"
-        placeholder={errorTextReps ? errorTextReps : "number of reps"}
-        onChangeText={text => {
-          updateErrorTextReps(null);
+      <NumberPad
+        initialValue={0}
+        mode={"number"}
+        callback={text => {
           updateReps(text);
         }}
       />
@@ -206,6 +181,9 @@ export default function AddWorkoutScreen(props) {
   if (mode === "repsAndSets") {
     InputDisplay = (
       <View>
+        <Button block transparent onPress={() => setMode("time")}>
+          <Text>switch to time</Text>
+        </Button>
         <Item fixedLabel>
           <Label>Reps</Label>
         </Item>
@@ -234,9 +212,6 @@ export default function AddWorkoutScreen(props) {
           selectedButtonStyle={styles.selectedButtonStyle}
         />
         {InputCustomSets}
-        <Button block transparent onPress={() => setMode("time")}>
-          <Text>switch to time</Text>
-        </Button>
       </View>
     );
   } else if (mode === "time") {
@@ -246,17 +221,18 @@ export default function AddWorkoutScreen(props) {
 
     InputDisplay = (
       <View>
+        <Button block transparent onPress={() => setMode("repsAndSets")}>
+          <Text>switch to reps and sets</Text>
+        </Button>
         <NumberPad
           initialValue={initialValue}
+          mode={"time"}
           callback={string => {
             updateHours(Number(string.slice(0, 2)));
             updateMinutes(Number(string.slice(2, 4)));
             updateSeconds(Number(string.slice(4, 6)));
           }}
         />
-        <Button block transparent onPress={() => setMode("repsAndSets")}>
-          <Text>switch to reps and sets</Text>
-        </Button>
       </View>
     );
   }
@@ -269,24 +245,6 @@ export default function AddWorkoutScreen(props) {
             {ExerciseDisplay}
             {InputDisplay}
           </Form>
-          <Button
-            style={styles.buttons}
-            block
-            warning
-            bordered
-            onPress={inputError.bind(this, "reps")}
-            >
-            <Text>reps error</Text>
-          </Button>
-          <Button
-            style={styles.buttons}
-            block
-            warning
-            bordered
-            onPress={inputError.bind(this, "sets")}
-            >
-            <Text>sets error</Text>
-          </Button>
         </Content>
         <Button style={styles.buttons} block onPress={submitWorkout}>
           <Text>Submit</Text>

@@ -23,7 +23,7 @@ const URL = "https://habitat-server.herokuapp.com";
 export default function AddWorkoutScreen(props) {
   // Hooks for sets, set input/errors
   const setsButtons = ["1", "2", "3", "custom"];
-  const [sets, updateSets] = React.useState();
+  const [sets, updateSets] = React.useState("1");
   const [errorTextSets, updateErrorTextSets] = React.useState();
   const [selectedSetsIndex, updateSetsIndex] = React.useState(0);
   const inputSets = React.createRef();

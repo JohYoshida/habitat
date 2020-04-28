@@ -10,18 +10,29 @@ import platform from "../native-base-theme/variables/platform";
 
 export default function NumberPad(props) {
   const initialValue = props.initialValue ? props.initialValue : "000000";
+  const [mode, setMode] = React.useState(props.mode);
   const [hours, setHours] = React.useState(initialValue.slice(0, 2));
   const [minutes, setMinutes] = React.useState(initialValue.slice(2, 4));
   const [seconds, setSeconds] = React.useState(initialValue.slice(4, 6));
-  const [amount, setAmount] = React.useState(
-    Number(initialValue) !== 0 ? Number(initialValue).toString() : ""
+  const [amount, setAmount] = React.useState(() => {
+    if (mode === "time") {
+      return Number(initialValue) !== 0 ? Number(initialValue).toString() : "";
+    } else if (mode === "number") {
+      return "0";
+    }
+  }
+
   );
 
   const updateAmount = value => {
     let num; // Up to 6 digits. No leading zeroes
     let str; // Will always be 6 digits, including any leading zeroes
     if (value === "back") {
-      num = amount.slice(0, -1);
+      if (mode === "number" && amount.length === 1) {
+        num = "0";
+      } else {
+        num = amount.slice(0, -1);
+      }
       str = "000000".slice(0, -amount.length + 1) + num;
     } else {
       num = Number(amount + value);
@@ -36,16 +47,31 @@ export default function NumberPad(props) {
     props.callback(str);
   };
 
+  let Display;
+  if (mode === "time") {
+    Display = (
+      <Button transparent block>
+        <H3 style={styles.numberDisplay}>
+          {hours} h {minutes} m {seconds} s
+        </H3>
+      </Button>
+    );
+  } else if (mode === "number") {
+    Display = (
+      <Button transparent block>
+        <H3 style={styles.numberDisplay}>
+          {amount}
+        </H3>
+      </Button>
+    );
+  }
+
   return (
     <View>
       <Grid>
         <Row>
           <Col>
-            <Button transparent block>
-              <H3 style={styles.numberDisplay}>
-                {hours} h {minutes} m {seconds} s
-              </H3>
-            </Button>
+            {Display}
           </Col>
           <Col>
             <Button transparent block onPress={() => updateAmount("back")}>

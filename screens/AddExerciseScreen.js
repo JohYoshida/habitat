@@ -2,8 +2,8 @@ import * as React from "react";
 import { StyleSheet } from "react-native";
 import { Input, ButtonGroup } from "react-native-elements";
 import { Button, Container, Content, StyleProvider, Text } from "native-base";
-import Colors from "../constants/Colors";
 import { URL } from "../constants/URLs";
+import Colors from "../constants/Colors";
 // Native base theme requirements
 import getTheme from "../native-base-theme/components";
 import platform from "../native-base-theme/variables/platform";

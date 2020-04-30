@@ -11,14 +11,13 @@ import {
   Text
 } from "native-base";
 import { ConfirmDeletionButtons } from "../components/ConfirmDeletionButtons";
+import { URL } from "../constants/URLs";
 import Colors from "../constants/Colors";
 // Native base theme requirements
 import getTheme from "../native-base-theme/components";
 import platform from "../native-base-theme/variables/platform";
 
 const moment = require("moment");
-
-const URL = "https://habitat-server.herokuapp.com";
 
 export default function ViewExerciseScreen(props) {
   const [confirmDeleteExercise, setConfirmDeleteExercise] = React.useState(

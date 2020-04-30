@@ -12,13 +12,12 @@ import {
   StyleProvider,
   Text
 } from "native-base";
-import NumberPad from "../components/NumberPad";
+import { URL } from "../constants/URLs";
 import Colors from "../constants/Colors";
+import NumberPad from "../components/NumberPad";
 // Native base theme requirements
 import getTheme from "../native-base-theme/components";
 import platform from "../native-base-theme/variables/platform";
-
-const URL = "https://habitat-server.herokuapp.com";
 
 export default function AddWorkoutScreen(props) {
   // Hooks for sets, set input/errors

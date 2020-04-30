@@ -12,12 +12,11 @@ import {
   Text
 } from "native-base";
 import ActionButton from "react-native-action-button";
+import { URL } from "../constants/URLs";
 import Colors from "../constants/Colors";
 // Native Base theme requirements
 import getTheme from "../native-base-theme/components";
 import platform from "../native-base-theme/variables/platform";
-
-const URL = "https://habitat-server.herokuapp.com";
 
 export default function ExerciseScreen(props) {
   const [exercises, setExercises] = React.useState([]);

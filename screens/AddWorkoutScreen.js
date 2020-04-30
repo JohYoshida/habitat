@@ -45,14 +45,15 @@ export default function AddWorkoutScreen(props) {
   const submitWorkout = () => {
     let exercise_id;
     let body = {};
+    let totalSeconds = seconds + minutes * 60  + hours * 3600;
     if (exercises) {
       // navigated from ExerciseScreen
       body.exercise_id = exercises[selectedExerciseIndex].id;
       if (exercises[selectedExerciseIndex].mode === "reps and sets") {
-        body[reps] = reps;
-        body[sets] = sets;
+        body.reps = reps;
+        body.sets = sets;
       } else if (exercises[selectedExerciseIndex].mode === "time") {
-        body[seconds] = totalSeconds;
+        body.seconds = totalSeconds;
       }
     } else if (exercise) {
       // navigated from ViewExerciseScreen

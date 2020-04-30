@@ -141,7 +141,9 @@ export default function ViewExerciseScreen(props) {
       thisWeekTotal += seconds;
     }
     // Configure and add workout list items
-    let title = assembleTitle(mode, workout.seconds);
+    let title;
+    if (mode === "time") title = assembleTitle(mode, seconds, name);
+    else title = assembleTitle(mode, sum, name);
     WorkoutsList.push(
       <ListItem
         key={id}
@@ -159,7 +161,7 @@ export default function ViewExerciseScreen(props) {
     );
   });
   // Configure and add today header
-  let todayTitle = assembleTitle(mode, todayTotal);
+  let todayTitle = assembleTitle(mode, todayTotal, name);
   WorkoutsList.unshift(
     <ListItem
       key="today"
@@ -171,7 +173,7 @@ export default function ViewExerciseScreen(props) {
   );
   // Configure and conditionally add yesterday header
   if (yesterdayIndex) {
-    let yesterdayTitle = assembleTitle(mode, yesterdayTotal);
+    let yesterdayTitle = assembleTitle(mode, yesterdayTotal, name);
     WorkoutsList.splice(
       yesterdayIndex,
       0,
@@ -185,7 +187,7 @@ export default function ViewExerciseScreen(props) {
     );
   }
   // Configure and add this week header
-  let thisWeekTitle = assembleTitle(mode, thisWeekTotal);
+  let thisWeekTitle = assembleTitle(mode, thisWeekTotal, name);
   WorkoutsList.push(
     <ListItem
       key="thisWeek"
@@ -196,7 +198,7 @@ export default function ViewExerciseScreen(props) {
     />
   );
   // Configure and add lifetime header
-  let lifetimeTitle = assembleTitle(mode, lifetimeTotal);
+  let lifetimeTitle = assembleTitle(mode, lifetimeTotal, name);
   WorkoutsList.push(
     <ListItem
       key="lifetime"
@@ -297,7 +299,7 @@ export default function ViewExerciseScreen(props) {
 }
 
 // Assemble dyamic titles for WorkoutsList items
-const assembleTitle = (mode, number) => {
+const assembleTitle = (mode, number, name) => {
   let title;
   if (mode === "time") {
     let hours = Math.floor(number / 3600);

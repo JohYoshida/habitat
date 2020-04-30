@@ -240,8 +240,8 @@ export default function ViewExerciseScreen(props) {
 
   // Conditionally render workout delete buttons in workout list
   if (workoutDeleteID !== null) {
-    WorkoutsList.forEach((workout, index) => {
-      if (workout.key === workoutDeleteID) {
+    WorkoutsList.forEach((object, index) => {
+      if (object && object.key === workoutDeleteID) {
         WorkoutsList.splice(index + 1, 0, DeleteWorkoutButtons).join();
       }
     });

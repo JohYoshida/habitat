@@ -1,16 +1,22 @@
 import * as React from "react";
-import { Input } from "react-native-elements";
+import { StyleSheet } from "react-native";
+import { Input, ButtonGroup } from "react-native-elements";
 import { Button, Container, Content, StyleProvider, Text } from "native-base";
+import Colors from "../constants/Colors";
+import { URL } from "../constants/URLs";
 // Native base theme requirements
 import getTheme from "../native-base-theme/components";
 import platform from "../native-base-theme/variables/platform";
 
-const URL = "https://habitat-server.herokuapp.com";
-
 export default function AddExerciseScreen(props) {
+  // Hooks for exercises
   const [exercise, setExercise] = React.useState();
   const [errorTextExercise, setErrorTextExercise] = React.useState();
   const inputExercise = React.createRef();
+
+  // Hooks for mode
+  const modeButtons = ["reps and sets", "time"];
+  const [modeIndex, setMode] = React.useState(0);
 
   const submitExercise = () => {
     const { exercises } = props.route.params;
@@ -36,7 +42,8 @@ export default function AddExerciseScreen(props) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        name: exercise
+        name: exercise,
+        mode: modeButtons[modeIndex]
       })
     })
       .then(res => res.json())
@@ -68,6 +75,16 @@ export default function AddExerciseScreen(props) {
               setExercise(text);
             }}
           />
+          <ButtonGroup
+            onPress={index => {
+              console.log(index);
+              if (index === 0) setMode(0)
+              else if (index === 1) setMode(1)
+            }}
+            selectedIndex={modeIndex}
+            buttons={modeButtons}
+            selectedButtonStyle={styles.selectedButtonStyle}
+          />
           <Button block onPress={submitExercise}>
             <Text>Submit</Text>
           </Button>
@@ -79,3 +96,9 @@ export default function AddExerciseScreen(props) {
     </StyleProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  selectedButtonStyle: {
+    backgroundColor: Colors.brandPrimary
+  },
+});

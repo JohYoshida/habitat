@@ -28,47 +28,43 @@ export default function AddWorkoutScreen(props) {
   // Hooks for reps, rep input/errors
   const repsButtons = ["5", "10", "custom"];
   const [reps, updateReps] = React.useState("0");
-  const [selectedRepsIndex, updateRepsIndex] = React.useState(repsButtons.length - 1);
+  const [selectedRepsIndex, updateRepsIndex] = React.useState(
+    repsButtons.length - 1
+  );
 
   // Hooks for time
   const [seconds, updateSeconds] = React.useState(0);
   const [minutes, updateMinutes] = React.useState(0);
   const [hours, updateHours] = React.useState(0);
 
-  // Hook for input mode
-  const [mode, setMode] = React.useState("repsAndSets");
-
   // Hoops for selecting an exercise
   const { exercise, getWorkouts, exercises, getExercises } = props.route.params;
-  const [selectedExerciseIndex, setSelectedExercise] = React.useState(
-    exercises && exercises.length > 0 ? exercises[0] : "add exercise"
-  );
+  const [selectedExerciseIndex, setSelectedExercise] = React.useState(0);
 
   // Submit form
   const submitWorkout = () => {
     let exercise_id;
+    let body = {};
     if (exercises) {
       // navigated from ExerciseScreen
-      exercise_id = exercises[selectedExerciseIndex].id;
+      body.exercise_id = exercises[selectedExerciseIndex].id;
+      if (exercises[selectedExerciseIndex].mode === "reps and sets") {
+        body[reps] = reps;
+        body[sets] = sets;
+      } else if (exercises[selectedExerciseIndex].mode === "time") {
+        body[seconds] = totalSeconds;
+      }
     } else if (exercise) {
       // navigated from ViewExerciseScreen
-      exercise_id = exercise.id;
+      body.exercise_id = exercise.id;
+      if (exercise.mode === "reps and sets") {
+        body.reps = reps;
+        body.sets = sets;
+      } else if (exercise.mode === "time") {
+        body.seconds = totalSeconds;
+      }
     }
-    let body = {};
-    if (mode === "repsAndSets") {
-      body = JSON.stringify({
-        exercise_id,
-        reps,
-        sets
-      });
-    } else if (mode === "time") {
-      let totalSeconds = seconds + minutes * 60 + hours * 3600;
-      console.log(totalSeconds);
-      body = JSON.stringify({
-        exercise_id,
-        seconds: totalSeconds
-      });
-    }
+    body = JSON.stringify(body)
     fetch(`${URL}/workout`, {
       method: "POST",
       headers: {
@@ -85,7 +81,6 @@ export default function AddWorkoutScreen(props) {
         props.navigation.goBack();
       });
   };
-
 
   // Conditional rendering for custom sets input
   let InputCustomSets;
@@ -177,63 +172,64 @@ export default function AddWorkoutScreen(props) {
 
   // Conditional rendering for reps and sets mode and time mode inputs
   let InputDisplay;
-  if (mode === "repsAndSets") {
-    InputDisplay = (
-      <View>
-        <Button block transparent onPress={() => setMode("time")}>
-          <Text>switch to time</Text>
-        </Button>
-        <Item fixedLabel>
-          <Label>Reps</Label>
-        </Item>
-        <ButtonGroup
-          onPress={index => {
-            updateRepsIndex(index);
-            if (repsButtons[index] !== "custom") updateReps(repsButtons[index]);
-            else updateReps("");
-          }}
-          selectedIndex={selectedRepsIndex}
-          buttons={repsButtons}
-          selectedButtonStyle={styles.selectedButtonStyle}
-        />
-        {InputCustomReps}
-        <Item fixedLabel>
-          <Label>Sets</Label>
-        </Item>
-        <ButtonGroup
-          onPress={index => {
-            updateSetsIndex(index);
-            if (setsButtons[index] !== "custom") updateSets(setsButtons[index]);
-            else updateSets("");
-          }}
-          selectedIndex={selectedSetsIndex}
-          buttons={setsButtons}
-          selectedButtonStyle={styles.selectedButtonStyle}
-        />
-        {InputCustomSets}
-      </View>
-    );
-  } else if (mode === "time") {
-    // Setup initial value
-    let initialValue = `${hours.toString()}${minutes.toString()}${seconds.toString()}`;
-    initialValue = "000000".slice(0, -initialValue.length) + initialValue;
-
-    InputDisplay = (
-      <View>
-        <Button block transparent onPress={() => setMode("repsAndSets")}>
-          <Text>switch to reps and sets</Text>
-        </Button>
-        <NumberPad
-          initialValue={initialValue}
-          mode={"time"}
-          callback={string => {
-            updateHours(Number(string.slice(0, 2)));
-            updateMinutes(Number(string.slice(2, 4)));
-            updateSeconds(Number(string.slice(4, 6)));
-          }}
-        />
-      </View>
-    );
+  let SwitchButtonDisplay;
+  const RepsAndSetsDisplay = (
+    <View>
+      <Item fixedLabel>
+        <Label>Reps</Label>
+      </Item>
+      <ButtonGroup
+        onPress={index => {
+          updateRepsIndex(index);
+          if (repsButtons[index] !== "custom") updateReps(repsButtons[index]);
+          else updateReps("");
+        }}
+        selectedIndex={selectedRepsIndex}
+        buttons={repsButtons}
+        selectedButtonStyle={styles.selectedButtonStyle}
+      />
+      {InputCustomReps}
+      <Item fixedLabel>
+        <Label>Sets</Label>
+      </Item>
+      <ButtonGroup
+        onPress={index => {
+          updateSetsIndex(index);
+          if (setsButtons[index] !== "custom") updateSets(setsButtons[index]);
+          else updateSets("");
+        }}
+        selectedIndex={selectedSetsIndex}
+        buttons={setsButtons}
+        selectedButtonStyle={styles.selectedButtonStyle}
+      />
+      {InputCustomSets}
+    </View>
+  );
+  const TimeDisplay = (
+    <View>
+      <NumberPad
+        mode={"time"}
+        callback={string => {
+          updateHours(Number(string.slice(0, 2)));
+          updateMinutes(Number(string.slice(2, 4)));
+          updateSeconds(Number(string.slice(4, 6)));
+        }}
+      />
+    </View>
+  );
+  if (exercise) {
+    if (exercise.mode === "reps and sets") {
+      InputDisplay = RepsAndSetsDisplay;
+    } else if (exercise.mode === "time") {
+      InputDisplay = TimeDisplay;
+    }
+  }
+  if (exercises) {
+    if (exercises[selectedExerciseIndex].mode === "reps and sets") {
+      InputDisplay = RepsAndSetsDisplay;
+    } else if (exercises[selectedExerciseIndex].mode === "time") {
+      InputDisplay = TimeDisplay;
+    }
   }
 
   return (

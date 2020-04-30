@@ -26,8 +26,11 @@ export default function ViewExerciseScreen(props) {
   const [confirmDeleteWorkout, setConfirmDeleteWorkout] = React.useState(false);
   const [workouts, setWorkouts] = React.useState([]);
   const [isFetchingWorkouts, setIsFetchingWorkouts] = React.useState(false);
-  const [workoutDeleteIndex, setWorkoutDeleteIndex] = React.useState(null);
   const [workoutDeleteID, setWorkoutDeleteID] = React.useState(null);
+  const [yesterdayIndex, setYesterdayIndex] = React.useState(null);
+  const [lifetimeTotal, setLifetimeTotal] = React.useState(
+    props.route.params.exercise.lifetimeTotal
+  );
 
   // Get workouts when the screen mounts or state updates
   React.useEffect(
@@ -59,6 +62,18 @@ export default function ViewExerciseScreen(props) {
 
   // Delete workout from server database by id
   const deleteWorkout = () => {
+    // Calculate amount to decrease lifetimeTotal by
+    let amount;
+    workouts.forEach(workout => {
+      if (workout.id === workoutDeleteID) {
+        let { mode } = props.route.params.exercise;
+        if (mode === "time") {
+          amount = workout.seconds;
+        } else if (mode === "reps and sets") {
+          amount = workout.reps * workout.sets;
+        }
+      }
+    });
     fetch(`${URL}/workout`, {
       method: "DELETE",
       headers: {
@@ -66,12 +81,17 @@ export default function ViewExerciseScreen(props) {
         "Content-Type": "application/json",
         "Access-Control-Allow-Methods": "DELETE"
       },
-      body: JSON.stringify({ id: workoutDeleteID })
+      body: JSON.stringify({
+        id: workoutDeleteID,
+        exercise_id: props.route.params.exercise.id,
+        amount
+      })
     })
       .then(res => res.json())
       .then(json => {
         setWorkoutDeleteID(null);
-        setWorkoutDeleteIndex(null);
+        setConfirmDeleteWorkout(false);
+        setLifetimeTotal(lifetimeTotal - amount);
         getWorkouts();
       });
   };
@@ -90,80 +110,113 @@ export default function ViewExerciseScreen(props) {
       });
   };
 
-  // Assemble workouts lists
+  // Assemble workouts list
+  const WorkoutsList = [];
+  const name = props.route.params.exercise.name.toLowerCase();
+  const mode = props.route.params.exercise.mode;
+  const now = moment().format("h:mm a MM-DD-YYYY");
+  const today = Number(moment().format("DD"));
   let todayTotal = 0,
     yesterdayTotal = 0,
-    thisWeekTotal = 0,
-    lifetimeTotal = 0;
-  const TodaysList = [];
-  const YesterdaysList = [];
-  let name = props.route.params.exercise.name.toLowerCase();
+    thisWeekTotal = 0;
   workouts.forEach((workout, index) => {
-    let timestamp = moment(workout.createdAt).format("h:mm a MM-DD-YYYY");
-    let sum = workout.sets * workout.reps;
-    let diff = moment().diff(moment(workout.createdAt), "days");
-    lifetimeTotal += sum;
-    if (diff < 7) thisWeekTotal += sum;
-    if (diff === 0) {
-      // Construct TodaysList
+    let { reps, sets, seconds, id, createdAt } = workout;
+    let sum = reps * sets;
+    let day = Number(moment(createdAt).format("DD"));
+    let timestamp = moment(createdAt).format("h:mm a MM-DD-YYYY");
+    if (today - day === 0) {
       todayTotal += sum;
-      TodaysList.unshift(
-        <ListItem
-          title={`${workout.reps} reps, ${workout.sets} sets`}
-          rightTitle={`${sum} ${name}`}
-          key={workouts.length - 1 - index}
-          subtitle={timestamp}
-          onPress={() => {
-            if (workouts.length - 1 - index === workoutDeleteIndex) {
-              setWorkoutDeleteIndex(null);
-              setWorkoutDeleteID(null);
-            } else {
-              setWorkoutDeleteIndex(workouts.length - 1 - index);
-              setWorkoutDeleteID(workout.id);
-            }
-          }}
-        />
-      );
-    } else if (diff === 1) {
-      // Construct YesterdaysList
-      yesterdayTotal += sum;
-      YesterdaysList.unshift(
-        <ListItem
-          title={`${workout.reps} reps, ${workout.sets} sets`}
-          rightTitle={`${sum} ${name}`}
-          key={workouts.length - 1 - index}
-          subtitle={timestamp}
-          onPress={() => {
-            if (workouts.length - 1 - index === workoutDeleteIndex) {
-              setWorkoutDeleteIndex(null);
-              setWorkoutDeleteID(null);
-            } else {
-              setWorkoutDeleteIndex(workouts.length - 1 - index);
-              setWorkoutDeleteID(workout.id);
-            }
-          }}
-        />
-      );
+      todayTotal += seconds;
     }
+    if (today - day === 1) {
+      yesterdayTotal += sum;
+      yesterdayTotal += seconds;
+      if (!yesterdayIndex) {
+        console.log("yestedayIndex", index - 1);
+        setYesterdayIndex(index - 1);
+      }
+    }
+    if (today - day < 7) {
+      thisWeekTotal += sum;
+      thisWeekTotal += seconds;
+    }
+    // Configure and add workout list items
+    let title = assembleTitle(mode, workout.seconds);
+    WorkoutsList.push(
+      <ListItem
+        key={id}
+        title={mode === "time" ? `${seconds} seconds` : `${sum} ${name}`}
+        rightTitle={title}
+        subtitle={timestamp}
+        onPress={() => {
+          if (id === workoutDeleteID) {
+            setWorkoutDeleteID(null);
+          } else {
+            setWorkoutDeleteID(id);
+          }
+        }}
+      />
+    );
   });
-  TodaysList.unshift(
+  // Configure and add today header
+  let todayTitle = assembleTitle(mode, todayTotal);
+  WorkoutsList.unshift(
     <ListItem
       key="today"
       title="Today"
       topDivider={true}
       bottomDivider={true}
-      rightTitle={`${todayTotal} ${name}`}
+      rightTitle={todayTitle}
     />
   );
-  YesterdaysList.unshift(
+  // Configure and conditionally add yesterday header
+  if (yesterdayIndex) {
+    let yesterdayTitle = assembleTitle(mode, yesterdayTotal);
+    WorkoutsList.splice(
+      yesterdayIndex,
+      0,
+      <ListItem
+        key="yesterday"
+        title="Yesterday"
+        topDivider={true}
+        bottomDivider={true}
+        rightTitle={yesterdayTitle}
+      />
+    );
+  }
+  // Configure and add this week header
+  let thisWeekTitle = assembleTitle(mode, thisWeekTotal);
+  WorkoutsList.push(
     <ListItem
-      key="yesterday"
-      title="Yesterday"
+      key="thisWeek"
+      title="This week"
       topDivider={true}
       bottomDivider={true}
-      rightTitle={`${yesterdayTotal} ${name}`}
+      rightTitle={thisWeekTitle}
     />
   );
+  // Configure and add lifetime header
+  let lifetimeTitle = assembleTitle(mode, lifetimeTotal);
+  WorkoutsList.push(
+    <ListItem
+      key="lifetime"
+      title="Lifetime"
+      bottomDivider={true}
+      rightTitle={lifetimeTitle}
+    />
+  );
+
+  // Conditionally display workouts list, empty list text, or loading spinner
+  let ListDisplay;
+  if (isFetchingWorkouts) {
+    ListDisplay = <Spinner color={Colors.brandPrimary} />;
+  } else if (workouts.length === 0) {
+    ListDisplay = (
+      <Text style={styles.emptyListText}>
+        workouts you add will appear here
+      </Text>
+    );
+  } else ListDisplay = WorkoutsList;
 
   // Conditional rendering for workout delete/confirm buttons
   let DeleteWorkoutButtons;
@@ -189,44 +242,14 @@ export default function ViewExerciseScreen(props) {
     );
   }
 
-  // Conditionally render delete buttons in workout list
-  if (workoutDeleteIndex !== null) {
-    // TODO: display these buttons in other lists as well, or better yet,
-    // find a way to combine all the lists without the headers messing things up
-    TodaysList.splice(workoutDeleteIndex + 2, 0, DeleteWorkoutButtons).join();
+  // Conditionally render workout delete buttons in workout list
+  if (workoutDeleteID !== null) {
+    WorkoutsList.forEach((workout, index) => {
+      if (workout.key === workoutDeleteID) {
+        WorkoutsList.splice(index + 1, 0, DeleteWorkoutButtons).join();
+      }
+    });
   }
-
-  // Conditionally display workouts list, empty list text, or loading spinner
-  let ListDisplay;
-  if (isFetchingWorkouts) {
-    ListDisplay = <Spinner color={Colors.brandPrimary} />;
-  } else if (workouts.length === 0) {
-    ListDisplay = (
-      <Text style={styles.emptyListText}>
-        workouts you add will appear here
-      </Text>
-    );
-  } else
-    ListDisplay = (
-      <View>
-        <List>{TodaysList}</List>
-        <List>{YesterdaysList}</List>
-        <ListItem
-          key="thisWeekTotal"
-          title="This Week"
-          topDivider={true}
-          bottomDivider={true}
-          rightTitle={`${thisWeekTotal} ${name}`}
-        />
-        <ListItem
-          key="total"
-          title="Lifetime Total"
-          topDivider={true}
-          bottomDivider={true}
-          rightTitle={`${lifetimeTotal} ${name}`}
-        />
-      </View>
-    );
 
   // Conditional rendering for exercise delete/confirm buttons
   let DeleteExerciseButtons;
@@ -272,6 +295,20 @@ export default function ViewExerciseScreen(props) {
     </StyleProvider>
   );
 }
+
+// Assemble dyamic titles for WorkoutsList items
+const assembleTitle = (mode, number) => {
+  let title;
+  if (mode === "time") {
+    let hours = Math.floor(number / 3600);
+    let minutes = Math.floor((number - hours * 3600) / 60);
+    let seconds = Math.floor(number - hours * 3600 - minutes * 60);
+    title = `${hours} h ${minutes} m ${seconds} s`;
+  } else if (mode === "reps and sets") {
+    title = `${number} ${name}`;
+  }
+  return title;
+};
 
 const styles = StyleSheet.create({
   emptyListText: {

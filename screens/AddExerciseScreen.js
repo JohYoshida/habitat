@@ -1,9 +1,10 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
-import { Input, ButtonGroup } from "react-native-elements";
+import { Input } from "react-native-elements";
 import { Button, Container, Content, StyleProvider, Text } from "native-base";
 import { URL } from "../constants/URLs";
 import Colors from "../constants/Colors";
+import CustomButtons from "../components/CustomButtons";
 // Native base theme requirements
 import getTheme from "../native-base-theme/components";
 import platform from "../native-base-theme/variables/platform";
@@ -75,29 +76,26 @@ export default function AddExerciseScreen(props) {
               setExercise(text);
             }}
           />
-          <ButtonGroup
+          <CustomButtons
             onPress={index => {
               if (index === 0) setMode(0);
               else if (index === 1) setMode(1);
             }}
             selectedIndex={modeIndex}
             buttons={modeButtons}
-            selectedButtonStyle={styles.selectedButtonStyle}
+            style={styles.buttons}
           />
-          <Button block onPress={submitExercise}>
-            <Text>Submit</Text>
-          </Button>
-          <Button block warning onPress={inputError}>
-            <Text>exercise error</Text>
-          </Button>
         </Content>
+        <Button block style={styles.buttons} onPress={submitExercise}>
+          <Text>Submit</Text>
+        </Button>
       </Container>
     </StyleProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  selectedButtonStyle: {
-    backgroundColor: Colors.brandPrimary
+  buttons: {
+    margin: 10
   }
 });

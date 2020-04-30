@@ -1,6 +1,5 @@
 import * as React from "react";
 import { StyleSheet, View } from "react-native";
-import { ButtonGroup } from "react-native-elements";
 import {
   Button,
   Container,
@@ -15,18 +14,19 @@ import {
 import { URL } from "../constants/URLs";
 import Colors from "../constants/Colors";
 import NumberPad from "../components/NumberPad";
+import CustomButtons from "../components/CustomButtons";
 // Native base theme requirements
 import getTheme from "../native-base-theme/components";
 import platform from "../native-base-theme/variables/platform";
 
 export default function AddWorkoutScreen(props) {
   // Hooks for sets, set input/errors
-  const setsButtons = ["1", "2", "3", "custom"];
+  const setsButtons = ["1", "2", "3", "4", "5", "custom"];
   const [sets, updateSets] = React.useState("1");
   const [selectedSetsIndex, updateSetsIndex] = React.useState(0);
 
   // Hooks for reps, rep input/errors
-  const repsButtons = ["5", "10", "custom"];
+  const repsButtons = ["5", "10", "20", "30", "40", "custom"];
   const [reps, updateReps] = React.useState("0");
   const [selectedRepsIndex, updateRepsIndex] = React.useState(
     repsButtons.length - 1
@@ -177,7 +177,7 @@ export default function AddWorkoutScreen(props) {
       <Item fixedLabel>
         <Label>Reps</Label>
       </Item>
-      <ButtonGroup
+      <CustomButtons
         onPress={index => {
           updateRepsIndex(index);
           if (repsButtons[index] !== "custom") updateReps(repsButtons[index]);
@@ -185,13 +185,12 @@ export default function AddWorkoutScreen(props) {
         }}
         selectedIndex={selectedRepsIndex}
         buttons={repsButtons}
-        selectedButtonStyle={styles.selectedButtonStyle}
       />
       {InputCustomReps}
       <Item fixedLabel>
         <Label>Sets</Label>
       </Item>
-      <ButtonGroup
+      <CustomButtons
         onPress={index => {
           updateSetsIndex(index);
           if (setsButtons[index] !== "custom") updateSets(setsButtons[index]);
@@ -199,7 +198,6 @@ export default function AddWorkoutScreen(props) {
         }}
         selectedIndex={selectedSetsIndex}
         buttons={setsButtons}
-        selectedButtonStyle={styles.selectedButtonStyle}
       />
       {InputCustomSets}
     </View>
@@ -252,9 +250,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fafafa"
-  },
-  selectedButtonStyle: {
-    backgroundColor: Colors.brandPrimary
   },
   buttons: {
     margin: 10

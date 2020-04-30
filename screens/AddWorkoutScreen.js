@@ -90,7 +90,6 @@ export default function AddWorkoutScreen(props) {
     // display input
     InputCustomSets = (
       <NumberPad
-        initialValue={0}
         mode={"number"}
         callback={text => {
           updateSets(text);
@@ -106,7 +105,6 @@ export default function AddWorkoutScreen(props) {
     // display input
     InputCustomReps = (
       <NumberPad
-        initialValue={0}
         mode={"number"}
         callback={text => {
           updateReps(text);

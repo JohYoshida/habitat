@@ -18,7 +18,7 @@ export default function NumberPad(props) {
     if (mode === "time") {
       return Number(initialValue) !== 0 ? Number(initialValue).toString() : "";
     } else if (mode === "number") {
-      return "0";
+      return "";
     }
   }
 

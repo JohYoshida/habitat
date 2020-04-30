@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Habitat-v3",
-    "slug": "Habitat-v3",
+    "name": "Habitat",
+    "slug": "Habitat",
     "platforms": [
       "ios",
       "android",

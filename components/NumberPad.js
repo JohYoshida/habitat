@@ -4,9 +4,6 @@ import { Input } from "react-native-elements";
 import { Col, Row, Grid } from "react-native-easy-grid";
 import { Button, Container, StyleProvider, Text, H3 } from "native-base";
 import Colors from "../constants/Colors";
-// Native base theme requirements
-import getTheme from "../native-base-theme/components";
-import platform from "../native-base-theme/variables/platform";
 
 export default function NumberPad(props) {
   const initialValue = props.initialValue ? props.initialValue : "000000";
@@ -20,9 +17,7 @@ export default function NumberPad(props) {
     } else if (mode === "number") {
       return "";
     }
-  }
-
-  );
+  });
 
   const updateAmount = value => {
     let num; // Up to 6 digits. No leading zeroes
@@ -59,9 +54,7 @@ export default function NumberPad(props) {
   } else if (mode === "number") {
     Display = (
       <Button transparent block>
-        <H3 style={styles.numberDisplay}>
-          {amount}
-        </H3>
+        <H3 style={styles.numberDisplay}>{amount}</H3>
       </Button>
     );
   }
@@ -70,9 +63,7 @@ export default function NumberPad(props) {
     <View>
       <Grid>
         <Row>
-          <Col>
-            {Display}
-          </Col>
+          <Col>{Display}</Col>
           <Col>
             <Button transparent block onPress={() => updateAmount("back")}>
               <Text>{"<-"}</Text>

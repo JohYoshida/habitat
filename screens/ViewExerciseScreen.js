@@ -156,7 +156,9 @@ export default function ViewExerciseScreen(props) {
     WorkoutsList.push(
       <ListItem
         key={id}
-        title={mode === "time" ? `${seconds} seconds` : `${reps} reps, ${sets} sets`}
+        title={
+          mode === "time" ? `${seconds} seconds` : `${reps} reps, ${sets} sets`
+        }
         rightTitle={title}
         subtitle={timestamp}
         onPress={() => {

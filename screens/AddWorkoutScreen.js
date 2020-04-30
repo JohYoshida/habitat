@@ -64,7 +64,7 @@ export default function AddWorkoutScreen(props) {
         body.seconds = totalSeconds;
       }
     }
-    body = JSON.stringify(body)
+    body = JSON.stringify(body);
     fetch(`${URL}/workout`, {
       method: "POST",
       headers: {

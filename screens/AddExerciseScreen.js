@@ -78,8 +78,8 @@ export default function AddExerciseScreen(props) {
           <ButtonGroup
             onPress={index => {
               console.log(index);
-              if (index === 0) setMode(0)
-              else if (index === 1) setMode(1)
+              if (index === 0) setMode(0);
+              else if (index === 1) setMode(1);
             }}
             selectedIndex={modeIndex}
             buttons={modeButtons}
@@ -100,5 +100,5 @@ export default function AddExerciseScreen(props) {
 const styles = StyleSheet.create({
   selectedButtonStyle: {
     backgroundColor: Colors.brandPrimary
-  },
+  }
 });

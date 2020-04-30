@@ -27,9 +27,8 @@ export default function ViewExerciseScreen(props) {
   const [workouts, setWorkouts] = React.useState([]);
   const [isFetchingWorkouts, setIsFetchingWorkouts] = React.useState(false);
   const [workoutDeleteID, setWorkoutDeleteID] = React.useState(null);
-  const [yesterdayIndex, setYesterdayIndex] = React.useState(null);
   const [lifetimeTotal, setLifetimeTotal] = React.useState(
-    props.route.params.exercise.lifetimeTotal
+    Number(props.route.params.exercise.lifetimeTotal)
   );
 
   // Get workouts when the screen mounts or state updates
@@ -119,6 +118,7 @@ export default function ViewExerciseScreen(props) {
   let todayTotal = 0,
     yesterdayTotal = 0,
     thisWeekTotal = 0;
+  let yesterdayList = [];
   workouts.forEach((workout, index) => {
     let { reps, sets, seconds, id, createdAt } = workout;
     let sum = reps * sets;
@@ -131,12 +131,21 @@ export default function ViewExerciseScreen(props) {
     if (today - day === 1) {
       yesterdayTotal += sum;
       yesterdayTotal += seconds;
-      if (!yesterdayIndex) {
-        console.log("yestedayIndex", index - 1);
-        setYesterdayIndex(index - 1);
-      }
+      // Conditionally configure yesterday header
+      let yesterdayTitle = assembleTitle(mode, yesterdayTotal, name);
+      yesterdayList[0] = (
+        <ListItem
+          key="yesterday"
+          title="Yesterday"
+          topDivider={true}
+          bottomDivider={true}
+          rightTitle={yesterdayTitle}
+        />
+      );
     }
     if (today - day < 7) {
+      // Push yesterday header into workout list
+      WorkoutsList.push(yesterdayList.pop());
       thisWeekTotal += sum;
       thisWeekTotal += seconds;
     }
@@ -171,21 +180,6 @@ export default function ViewExerciseScreen(props) {
       rightTitle={todayTitle}
     />
   );
-  // Configure and conditionally add yesterday header
-  if (yesterdayIndex) {
-    let yesterdayTitle = assembleTitle(mode, yesterdayTotal, name);
-    WorkoutsList.splice(
-      yesterdayIndex,
-      0,
-      <ListItem
-        key="yesterday"
-        title="Yesterday"
-        topDivider={true}
-        bottomDivider={true}
-        rightTitle={yesterdayTitle}
-      />
-    );
-  }
   // Configure and add this week header
   let thisWeekTitle = assembleTitle(mode, thisWeekTotal, name);
   WorkoutsList.push(

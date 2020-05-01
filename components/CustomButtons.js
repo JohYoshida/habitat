@@ -10,7 +10,7 @@ export default function CustomButtons(props) {
     if (label === "custom") custom = true;
     if (props.selectedIndex === index) {
       Buttons.push(
-        <Col style={custom ? { width: 100 } : {}}>
+        <Col style={custom ? { width: 100 } : null} key={index}>
           <Button block onPress={() => props.onPress(index)}>
             <Text>{label}</Text>
           </Button>
@@ -18,7 +18,7 @@ export default function CustomButtons(props) {
       );
     } else {
       Buttons.push(
-        <Col style={custom ? { width: 100 } : null}>
+        <Col style={custom ? { width: 100 } : null} key={index}>
           <Button bordered block onPress={() => props.onPress(index)}>
             <Text>{label}</Text>
           </Button>

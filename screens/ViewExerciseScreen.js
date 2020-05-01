@@ -6,7 +6,6 @@ import {
   Container,
   Content,
   List,
-  Spinner,
   StyleProvider,
   Text
 } from "native-base";
@@ -24,18 +23,24 @@ import platform from "../native-base-theme/variables/platform";
 
 const moment = require("moment");
 
+
 export default function ViewExerciseScreen(props) {
+
+  // Hook for storing workout data
+  const [workouts, setWorkouts] = React.useState([]);
+
+  // Hooks for deleting data
+  const [workoutDeleteID, setWorkoutDeleteID] = React.useState(null);
+  const [confirmDeleteWorkout, setConfirmDeleteWorkout] = React.useState(false);
   const [confirmDeleteExercise, setConfirmDeleteExercise] = React.useState(
     false
   );
-  const [confirmDeleteWorkout, setConfirmDeleteWorkout] = React.useState(false);
-  const [workouts, setWorkouts] = React.useState([]);
-  const [isFetchingWorkouts, setIsFetchingWorkouts] = React.useState(false);
-  const [workoutDeleteID, setWorkoutDeleteID] = React.useState(null);
+
+  // Hooks for refreshing data
+  const [refreshing, setRefreshing] = React.useState(false);
   const [lifetimeTotal, setLifetimeTotal] = React.useState(
     Number(props.route.params.exercise.lifetimeTotal)
   );
-  const [refreshing, setRefreshing] = React.useState(false);
 
   // Get workouts when the screen mounts or state updates
   React.useEffect(
@@ -46,6 +51,7 @@ export default function ViewExerciseScreen(props) {
     [workouts.length] // only run when workouts.length changes
   );
 
+  // Get and update workout data
   const onRefresh = React.useCallback(
     () => {
       const exercise_id = props.route.params.exercise.id;
@@ -104,7 +110,6 @@ export default function ViewExerciseScreen(props) {
   const WorkoutsList = [];
   const name = props.route.params.exercise.name.toLowerCase();
   const mode = props.route.params.exercise.mode;
-  const now = moment().format("h:mm a MM-DD-YYYY");
   const today = Number(moment().format("DD"));
   let todayTotal = 0,
     yesterdayTotal = 0,
@@ -162,6 +167,7 @@ export default function ViewExerciseScreen(props) {
       />
     );
   });
+
   // Configure and add today header
   let todayTitle = assembleTitle(mode, todayTotal, name);
   WorkoutsList.unshift(
@@ -173,6 +179,7 @@ export default function ViewExerciseScreen(props) {
       rightTitle={todayTitle}
     />
   );
+
   // Configure and add this week header
   let thisWeekTitle = assembleTitle(mode, thisWeekTotal, name);
   WorkoutsList.push(
@@ -184,6 +191,7 @@ export default function ViewExerciseScreen(props) {
       rightTitle={thisWeekTitle}
     />
   );
+
   // Configure and add lifetime header
   let lifetimeTitle = assembleTitle(mode, lifetimeTotal, name);
   WorkoutsList.push(
@@ -197,9 +205,7 @@ export default function ViewExerciseScreen(props) {
 
   // Conditionally display workouts list, empty list text, or loading spinner
   let ListDisplay;
-  if (isFetchingWorkouts) {
-    ListDisplay = <Spinner color={Colors.brandPrimary} />;
-  } else if (workouts.length === 0) {
+  if (workouts.length === 0) {
     ListDisplay = (
       <Text style={styles.emptyListText}>
         workouts you add will appear here

@@ -26,9 +26,7 @@ export default function AddWorkoutScreen(props) {
   // Hooks for reps
   const repsButtons = ["5", "10", "20", "30", "40", "custom"];
   const [reps, updateReps] = React.useState("0");
-  const [repsIndex, updateRepsIndex] = React.useState(
-    repsButtons.length - 1
-  );
+  const [repsIndex, updateRepsIndex] = React.useState(repsButtons.length - 1);
 
   // Hooks for sets, set input/errors
   const setsButtons = ["1", "2", "3", "4", "5", "custom"];
@@ -46,10 +44,13 @@ export default function AddWorkoutScreen(props) {
       // updateExercises();
       fetchExercises().then(data => {
         data.forEach((item, index) => {
-          if (props.route.params.exercise && props.route.params.exercise.id === item.id) {
+          if (
+            props.route.params.exercise &&
+            props.route.params.exercise.id === item.id
+          ) {
             setPickerIndex(index);
           }
-        })
+        });
         setExercises(data);
       });
     },
@@ -61,7 +62,7 @@ export default function AddWorkoutScreen(props) {
     fetchExercises().then(data => {
       setExercises(data);
     });
-  }
+  };
 
   // Construct and post workout to server
   const submitWorkout = () => {
@@ -79,7 +80,7 @@ export default function AddWorkoutScreen(props) {
       props.route.params.refreshLastScreen();
       props.navigation.goBack();
     });
-  }
+  };
 
   // Construct PickerList
   const PickerList = [];

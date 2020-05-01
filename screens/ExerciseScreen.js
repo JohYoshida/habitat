@@ -50,7 +50,10 @@ export default function ExerciseScreen(props) {
       <ListItem
         key={index}
         onPress={() =>
-          props.navigation.navigate("View Exercise", { exercise, refreshLastScreen: onRefresh })
+          props.navigation.navigate("View Exercise", {
+            exercise,
+            refreshLastScreen: onRefresh
+          })
         }
       >
         <Text>{exercise.name}</Text>
@@ -76,7 +79,10 @@ export default function ExerciseScreen(props) {
         bordered
         warning
         onPress={() =>
-          props.navigation.navigate("Add Exercise", { exercises, refreshLastScreen: onRefresh })
+          props.navigation.navigate("Add Exercise", {
+            exercises,
+            refreshLastScreen: onRefresh
+          })
         }
       >
         <Text>go to add exercise</Text>
@@ -86,7 +92,10 @@ export default function ExerciseScreen(props) {
         bordered
         warning
         onPress={() =>
-          props.navigation.navigate("Add Workout", { exercises, refreshLastScreen: onRefresh })
+          props.navigation.navigate("Add Workout", {
+            exercises,
+            refreshLastScreen: onRefresh
+          })
         }
       >
         <Text>go to add workout</Text>

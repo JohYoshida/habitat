@@ -11,7 +11,12 @@ import {
   Text
 } from "native-base";
 import { ConfirmDeletionButtons } from "../components/ConfirmDeletionButtons";
-import { fetchExercise, fetchWorkouts, deleteExercise, deleteWorkout } from "../functions/fetch";
+import {
+  fetchExercise,
+  fetchWorkouts,
+  deleteExercise,
+  deleteWorkout
+} from "../functions/fetch";
 import Colors from "../constants/Colors";
 // Native base theme requirements
 import getTheme from "../native-base-theme/components";
@@ -78,15 +83,13 @@ export default function ViewExerciseScreen(props) {
         }
       }
     });
-    deleteWorkout(
-      workoutDeleteID,
-      props.route.params.exercise.id,
-      amount
-    ).then(() => {
+    deleteWorkout(workoutDeleteID, props.route.params.exercise.id, amount).then(
+      () => {
         setWorkoutDeleteID(null);
         setConfirmDeleteWorkout(false);
         onRefresh();
-    })
+      }
+    );
   };
 
   // Get the exercise again and refresh the lifetimeTotal
@@ -94,8 +97,8 @@ export default function ViewExerciseScreen(props) {
     const id = props.route.params.exercise.id;
     fetchExercise(id).then(exercise => {
       setLifetimeTotal(exercise.lifetimeTotal);
-    })
-  }
+    });
+  };
 
   // Assemble workouts list
   const WorkoutsList = [];
@@ -212,8 +215,8 @@ export default function ViewExerciseScreen(props) {
         key={"confirmDelete"}
         confirm={removeWorkout}
         cancel={() => {
-          setConfirmDeleteWorkout(false)
-          setWorkoutDeleteID(null)
+          setConfirmDeleteWorkout(false);
+          setWorkoutDeleteID(null);
         }}
       />
     );
@@ -278,9 +281,12 @@ export default function ViewExerciseScreen(props) {
         >
           <Text>Add workout</Text>
         </Button>
-        <Content padder refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }>
+        <Content
+          padder
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
           {ListDisplay}
         </Content>
         <View style={styles.buttons}>{DeleteExerciseButtons}</View>

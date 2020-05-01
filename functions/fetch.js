@@ -35,10 +35,10 @@ function postExercise(name, mode) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        name, mode
+        name,
+        mode
       })
-    })
-      .then(() => resolve());
+    }).then(() => resolve());
   });
 }
 
@@ -53,8 +53,7 @@ function deleteExercise(id, name) {
         "Access-Control-Allow-Methods": "DELETE"
       },
       body: JSON.stringify({ id, name })
-    })
-      .then(() => resolve());
+    }).then(() => resolve());
   });
 }
 
@@ -80,8 +79,7 @@ function postWorkout(body) {
         "Content-Type": "application/json"
       },
       body
-    })
-      .then(() => resolve());
+    }).then(() => resolve());
   });
 }
 
@@ -99,9 +97,16 @@ function deleteWorkout(id, exercise_id, amount) {
         exercise_id,
         amount
       })
-    })
-    .then(() => resolve());
-  })
+    }).then(() => resolve());
+  });
 }
 
-export { fetchExercise, postExercise, deleteExercise, fetchExercises, fetchWorkouts, postWorkout, deleteWorkout };
+export {
+  fetchExercise,
+  postExercise,
+  deleteExercise,
+  fetchExercises,
+  fetchWorkouts,
+  postWorkout,
+  deleteWorkout
+};

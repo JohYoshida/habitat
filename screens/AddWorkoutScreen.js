@@ -11,8 +11,7 @@ import {
   StyleProvider,
   Text
 } from "native-base";
-import { URL } from "../constants/URLs";
-import Colors from "../constants/Colors";
+import { fetchExercises, postWorkout } from "../functions/fetch";
 import NumberPad from "../components/NumberPad";
 import CustomButtons from "../components/CustomButtons";
 // Native base theme requirements
@@ -20,90 +19,110 @@ import getTheme from "../native-base-theme/components";
 import platform from "../native-base-theme/variables/platform";
 
 export default function AddWorkoutScreen(props) {
+  // Hooks for exercise picker
+  const [exercises, setExercises] = React.useState([]);
+  const [pickerIndex, setPickerIndex] = React.useState();
+
+  // Hooks for reps
+  const repsButtons = ["5", "10", "20", "30", "40", "custom"];
+  const [reps, updateReps] = React.useState("0");
+  const [repsIndex, updateRepsIndex] = React.useState(
+    repsButtons.length - 1
+  );
+
   // Hooks for sets, set input/errors
   const setsButtons = ["1", "2", "3", "4", "5", "custom"];
   const [sets, updateSets] = React.useState("1");
-  const [selectedSetsIndex, updateSetsIndex] = React.useState(0);
-
-  // Hooks for reps, rep input/errors
-  const repsButtons = ["5", "10", "20", "30", "40", "custom"];
-  const [reps, updateReps] = React.useState("0");
-  const [selectedRepsIndex, updateRepsIndex] = React.useState(
-    repsButtons.length - 1
-  );
+  const [setsIndex, updateSetsIndex] = React.useState(0);
 
   // Hooks for time
   const [seconds, updateSeconds] = React.useState(0);
   const [minutes, updateMinutes] = React.useState(0);
   const [hours, updateHours] = React.useState(0);
 
-  // Hoops for selecting an exercise
-  const { exercise, getWorkouts, exercises, getExercises } = props.route.params;
-  const [selectedExerciseIndex, setSelectedExercise] = React.useState(0);
+  // Get exercises when the screen mounts or state updates
+  React.useEffect(
+    () => {
+      // updateExercises();
+      fetchExercises().then(data => {
+        data.forEach((item, index) => {
+          if (props.route.params.exercise && props.route.params.exercise.id === item.id) {
+            setPickerIndex(index);
+          }
+        })
+        setExercises(data);
+      });
+    },
+    [exercises.length] // only run when exercises.length changes
+  );
 
-  // Submit form
+  // Fetch and set exercises
+  const updateExercises = () => {
+    fetchExercises().then(data => {
+      setExercises(data);
+    });
+  }
+
+  // Construct and post workout to server
   const submitWorkout = () => {
-    let exercise_id;
     let body = {};
-    let totalSeconds = seconds + minutes * 60 + hours * 3600;
-    if (exercises) {
-      // navigated from ExerciseScreen
-      body.exercise_id = exercises[selectedExerciseIndex].id;
-      if (exercises[selectedExerciseIndex].mode === "reps and sets") {
-        body.reps = reps;
-        body.sets = sets;
-      } else if (exercises[selectedExerciseIndex].mode === "time") {
-        body.seconds = totalSeconds;
-      }
-    } else if (exercise) {
-      // navigated from ViewExerciseScreen
-      body.exercise_id = exercise.id;
-      if (exercise.mode === "reps and sets") {
-        body.reps = reps;
-        body.sets = sets;
-      } else if (exercise.mode === "time") {
-        body.seconds = totalSeconds;
-      }
+    const totalSeconds = seconds + minutes * 60 + hours * 3600;
+    body.exercise_id = exercises[pickerIndex].id;
+    if (exercises[pickerIndex].mode === "reps and sets") {
+      body.reps = reps;
+      body.sets = sets;
+    } else if (exercises[pickerIndex].mode === "time") {
+      body.seconds = totalSeconds;
     }
     body = JSON.stringify(body);
-    fetch(`${URL}/workout`, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      },
-      body
-    })
-      .then(res => res.json())
-      .then(json => {
-        if (exercise) {
-          getWorkouts();
-        }
-        props.navigation.goBack();
-      });
-  };
+    postWorkout(body).then(() => {
+      props.route.params.refreshLastScreen();
+      props.navigation.goBack();
+    });
+  }
 
-  // Conditional rendering for custom sets input
-  let InputCustomSets;
-  // if last button (custom option) is selected
-  if (selectedSetsIndex == setsButtons.length - 1) {
-    // display input
-    InputCustomSets = (
-      <NumberPad
-        mode={"number"}
-        callback={text => {
-          updateSets(text);
-        }}
-      />
+  // Construct PickerList
+  const PickerList = [];
+  exercises.forEach((item, index) => {
+    PickerList.push(
+      <Picker.Item label={item.name} value={index} key={item.id} />
     );
-  } else InputCustomSets = null;
+  });
+
+  // Construct ExercisePicker
+  let ExercisePicker;
+  ExercisePicker = (
+    <View>
+      <Item picker>
+        <Picker
+          selectedValue={pickerIndex}
+          onValueChange={value => setPickerIndex(value)}
+          placeholder="select a workout"
+        >
+          {PickerList}
+        </Picker>
+      </Item>
+      <Button
+        block
+        transparent
+        onPress={() =>
+          props.navigation.navigate("Add Exercise", {
+            exercises,
+            refreshLastScreen: updateExercises
+          })
+        }
+      >
+        <Text>or add exercise</Text>
+      </Button>
+    </View>
+  );
 
   // Conditional rendering for custom reps input
-  let InputCustomReps;
+  let RepsInput;
   // if last button (custom option) is selected
-  if (selectedRepsIndex == repsButtons.length - 1) {
+  if (repsIndex == repsButtons.length - 1) {
     // display input
-    InputCustomReps = (
+    RepsInput = (
       <NumberPad
         mode={"number"}
         callback={text => {
@@ -111,67 +130,24 @@ export default function AddWorkoutScreen(props) {
         }}
       />
     );
-  } else InputCustomReps = null;
+  } else RepsInput = null;
 
-  // Assemble Picker list
-  // TODO: make this list update dynamically when new workout
-  // is added from downstack of this screen
-  const PickerList = [];
-  if (exercises) {
-    exercises.forEach((item, index) => {
-      PickerList.push(
-        <Picker.Item label={item.name} value={index} key={item.id} />
-      );
-    });
-  } else if (exercise) {
-    PickerList.push(
-      <Picker.Item label={exercise.name} value={0} key={exercise.id} />
+  // Conditional rendering for custom sets input
+  let SetsInput;
+  // if last button (custom option) is selected
+  if (setsIndex == setsButtons.length - 1) {
+    // display input
+    SetsInput = (
+      <NumberPad
+        mode={"number"}
+        callback={text => {
+          updateSets(text);
+        }}
+      />
     );
-  }
+  } else SetsInput = null;
 
-  // Conditional display for picker depending on where user navigated from
-  let ExerciseDisplay;
-  if (exercises) {
-    // navigation from ExerciseScreen
-    ExerciseDisplay = [
-      <Item picker key={0}>
-        <Picker
-          selectedValue={selectedExerciseIndex}
-          onValueChange={value => setSelectedExercise(value)}
-          placeholder="select a workout"
-        >
-          {PickerList}
-        </Picker>
-      </Item>,
-      <Button
-        block
-        transparent
-        key={1}
-        onPress={() =>
-          props.navigation.navigate("Add Exercise", {
-            exercises,
-            getExercises
-          })
-        }
-      >
-        <Text>or add exercise</Text>
-      </Button>
-    ];
-  } else if (exercise) {
-    // navigation from ViewExerciseScreen
-    ExerciseDisplay = [
-      <Item picker key={0}>
-        <Picker enabled={false}>
-          <Picker.Item label={exercise.name} value={0} key={exercise.id} />
-        </Picker>
-      </Item>,
-      <Button block transparent key={1} />
-    ];
-  }
-
-  // Conditional rendering for reps and sets mode and time mode inputs
-  let InputDisplay;
-  let SwitchButtonDisplay;
+  // Construct RepsAndSetsDisplay
   const RepsAndSetsDisplay = (
     <View>
       <Item fixedLabel>
@@ -183,10 +159,10 @@ export default function AddWorkoutScreen(props) {
           if (repsButtons[index] !== "custom") updateReps(repsButtons[index]);
           else updateReps("");
         }}
-        selectedIndex={selectedRepsIndex}
+        selectedIndex={repsIndex}
         buttons={repsButtons}
       />
-      {InputCustomReps}
+      {RepsInput}
       <Item fixedLabel>
         <Label>Sets</Label>
       </Item>
@@ -196,12 +172,14 @@ export default function AddWorkoutScreen(props) {
           if (setsButtons[index] !== "custom") updateSets(setsButtons[index]);
           else updateSets("");
         }}
-        selectedIndex={selectedSetsIndex}
+        selectedIndex={setsIndex}
         buttons={setsButtons}
       />
-      {InputCustomSets}
+      {SetsInput}
     </View>
   );
+
+  // Construct TimeDisplay
   const TimeDisplay = (
     <View>
       <NumberPad
@@ -214,17 +192,13 @@ export default function AddWorkoutScreen(props) {
       />
     </View>
   );
-  if (exercise) {
-    if (exercise.mode === "reps and sets") {
+
+  // Conditional rendering for different input modes
+  let InputDisplay = null;
+  if (exercises[pickerIndex]) {
+    if (exercises[pickerIndex].mode === "reps and sets") {
       InputDisplay = RepsAndSetsDisplay;
-    } else if (exercise.mode === "time") {
-      InputDisplay = TimeDisplay;
-    }
-  }
-  if (exercises) {
-    if (exercises[selectedExerciseIndex].mode === "reps and sets") {
-      InputDisplay = RepsAndSetsDisplay;
-    } else if (exercises[selectedExerciseIndex].mode === "time") {
+    } else if (exercises[pickerIndex].mode === "time") {
       InputDisplay = TimeDisplay;
     }
   }
@@ -234,7 +208,7 @@ export default function AddWorkoutScreen(props) {
       <Container>
         <Content padder>
           <Form>
-            {ExerciseDisplay}
+            {ExercisePicker}
             {InputDisplay}
           </Form>
         </Content>
@@ -247,10 +221,6 @@ export default function AddWorkoutScreen(props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fafafa"
-  },
   buttons: {
     margin: 10
   }

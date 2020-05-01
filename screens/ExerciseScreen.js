@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StyleSheet, View } from "react-native";
+import { RefreshControl, StyleSheet, View } from "react-native";
 import {
   Button,
   Container,
@@ -12,7 +12,7 @@ import {
   Text
 } from "native-base";
 import ActionButton from "react-native-action-button";
-import { URL } from "../constants/URLs";
+import { fetchExercises } from "../functions/fetch";
 import Colors from "../constants/Colors";
 // Native Base theme requirements
 import getTheme from "../native-base-theme/components";
@@ -20,28 +20,28 @@ import platform from "../native-base-theme/variables/platform";
 
 export default function ExerciseScreen(props) {
   const [exercises, setExercises] = React.useState([]);
-  const [isFetchingExercises, setIsFetchingExercises] = React.useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
 
   // Get exercises when the screen mounts or state updates
   React.useEffect(
     () => {
-      getExercises();
+      fetchExercises().then(data => {
+        setExercises(data);
+      });
     },
     [exercises.length] // only run when exercises.length changes
   );
 
-  // Get all exercises from server
-  const getExercises = () => {
-    setIsFetchingExercises(true);
-    fetch(`${URL}/exercises`, {
-      method: "GET"
-    })
-      .then(res => res.json())
-      .then(json => {
-        setIsFetchingExercises(false);
-        setExercises(json.data);
+  const onRefresh = React.useCallback(
+    () => {
+      setRefreshing(true);
+      fetchExercises().then(data => {
+        setExercises(data);
+        setRefreshing(false);
       });
-  };
+    },
+    [refreshing]
+  );
 
   // Assemble exercise list
   const ExercisesList = [];
@@ -50,7 +50,7 @@ export default function ExerciseScreen(props) {
       <ListItem
         key={index}
         onPress={() =>
-          props.navigation.navigate("View Exercise", { exercise, getExercises })
+          props.navigation.navigate("View Exercise", { exercise, refreshLastScreen: onRefresh })
         }
       >
         <Text>{exercise.name}</Text>
@@ -58,11 +58,9 @@ export default function ExerciseScreen(props) {
     );
   });
 
-  // Conditionally display exercise list, empty list text, or loading spinner
+  // Conditionally display exercise list or empty list text
   let ListDisplay;
-  if (isFetchingExercises) {
-    ListDisplay = <Spinner color={Colors.brandPrimary} />;
-  } else if (exercises.length === 0) {
+  if (exercises.length === 0) {
     ListDisplay = (
       <Text style={styles.emptyListText}>
         exercises you add will appear here
@@ -78,7 +76,7 @@ export default function ExerciseScreen(props) {
         bordered
         warning
         onPress={() =>
-          props.navigation.navigate("Add Exercise", { exercises, getExercises })
+          props.navigation.navigate("Add Exercise", { exercises, refreshLastScreen: onRefresh })
         }
       >
         <Text>go to add exercise</Text>
@@ -88,12 +86,17 @@ export default function ExerciseScreen(props) {
         bordered
         warning
         onPress={() =>
-          props.navigation.navigate("Add Workout", { exercises, getExercises })
+          props.navigation.navigate("Add Workout", { exercises, refreshLastScreen: onRefresh })
         }
       >
         <Text>go to add workout</Text>
       </Button>
-      <Button block bordered warning onPress={getExercises}>
+      <Button
+        block
+        bordered
+        warning
+        onPress={() => fetchExercises().then(data => setExercises(data))}
+      >
         <Text>Get exercises</Text>
       </Button>
     </View>
@@ -103,7 +106,12 @@ export default function ExerciseScreen(props) {
     <StyleProvider style={getTheme(platform)}>
       <Container>
         <View style={styles.container}>
-          <Content padder>
+          <Content
+            padder
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          >
             {NavButtons}
             {ListDisplay}
           </Content>
@@ -114,7 +122,7 @@ export default function ExerciseScreen(props) {
               onPress={() =>
                 props.navigation.navigate("Add Exercise", {
                   exercises,
-                  getExercises
+                  refreshLastScreen: onRefresh
                 })
               }
             >
@@ -126,7 +134,7 @@ export default function ExerciseScreen(props) {
               onPress={() =>
                 props.navigation.navigate("Add Workout", {
                   exercises,
-                  getExercises
+                  refreshLastScreen: onRefresh
                 })
               }
             >

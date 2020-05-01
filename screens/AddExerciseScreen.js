@@ -2,7 +2,7 @@ import * as React from "react";
 import { StyleSheet } from "react-native";
 import { Input } from "react-native-elements";
 import { Button, Container, Content, StyleProvider, Text } from "native-base";
-import { URL } from "../constants/URLs";
+import { postExercise } from "../functions/fetch";
 import Colors from "../constants/Colors";
 import CustomButtons from "../components/CustomButtons";
 // Native base theme requirements
@@ -22,7 +22,10 @@ export default function AddExerciseScreen(props) {
   const submitExercise = () => {
     const { exercises } = props.route.params;
     if (exercises.length === 0) {
-      postExercise();
+      postExercise(exercise, modeButtons[modeIndex]).then(() => {
+        props.route.params.refreshLastScreen();
+        props.navigation.goBack();
+      });
     } else {
       let duplicate = false;
       exercises.forEach(item => {
@@ -31,27 +34,13 @@ export default function AddExerciseScreen(props) {
           inputError();
         }
       });
-      if (!duplicate) postExercise();
+      if (!duplicate) {
+        postExercise(exercise, modeButtons[modeIndex]).then(() => {
+          props.route.params.refreshLastScreen();
+          props.navigation.goBack();
+        });
+      }
     }
-  };
-
-  const postExercise = () => {
-    fetch(`${URL}/exercise`, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name: exercise,
-        mode: modeButtons[modeIndex]
-      })
-    })
-      .then(res => res.json())
-      .then(json => {
-        props.route.params.getExercises();
-        props.navigation.goBack();
-      });
   };
 
   const inputError = () => {

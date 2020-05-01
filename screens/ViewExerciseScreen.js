@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StyleSheet, View } from "react-native";
+import { RefreshControl, StyleSheet, View } from "react-native";
 import { ListItem, Input } from "react-native-elements";
 import {
   Button,
@@ -11,7 +11,7 @@ import {
   Text
 } from "native-base";
 import { ConfirmDeletionButtons } from "../components/ConfirmDeletionButtons";
-import { URL } from "../constants/URLs";
+import { fetchExercise, fetchWorkouts, deleteExercise, deleteWorkout } from "../functions/fetch";
 import Colors from "../constants/Colors";
 // Native base theme requirements
 import getTheme from "../native-base-theme/components";
@@ -30,37 +30,42 @@ export default function ViewExerciseScreen(props) {
   const [lifetimeTotal, setLifetimeTotal] = React.useState(
     Number(props.route.params.exercise.lifetimeTotal)
   );
+  const [refreshing, setRefreshing] = React.useState(false);
 
   // Get workouts when the screen mounts or state updates
   React.useEffect(
     () => {
-      getWorkouts();
+      onRefresh();
+      refreshLifetimeTotal();
     },
     [workouts.length] // only run when workouts.length changes
   );
 
-  // Delete exercise from server database by id
-  const deleteExercise = () => {
-    let { id, name } = props.route.params.exercise;
-    fetch(`${URL}/exercise`, {
-      method: "DELETE",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Methods": "DELETE"
-      },
-      body: JSON.stringify({ name, id })
-    })
-      .then(res => res.json())
-      .then(json => {
-        props.route.params.getExercises();
-        props.navigation.goBack();
-        setConfirmDeleteExercise(false);
+  const onRefresh = React.useCallback(
+    () => {
+      const exercise_id = props.route.params.exercise.id;
+      setRefreshing(true);
+      // Get and set workouts from database
+      fetchWorkouts(exercise_id).then(data => {
+        setWorkouts(data);
+        setRefreshing(false);
       });
+    },
+    [refreshing]
+  );
+
+  // Delete exercise from server database by id
+  const removeExercise = () => {
+    let { id, name } = props.route.params.exercise;
+    deleteExercise(id, name).then(() => {
+      props.route.params.refreshLastScreen();
+      setConfirmDeleteExercise(false);
+      props.navigation.goBack();
+    });
   };
 
   // Delete workout from server database by id
-  const deleteWorkout = () => {
+  const removeWorkout = () => {
     // Calculate amount to decrease lifetimeTotal by
     let amount;
     workouts.forEach(workout => {
@@ -73,41 +78,24 @@ export default function ViewExerciseScreen(props) {
         }
       }
     });
-    fetch(`${URL}/workout`, {
-      method: "DELETE",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Methods": "DELETE"
-      },
-      body: JSON.stringify({
-        id: workoutDeleteID,
-        exercise_id: props.route.params.exercise.id,
-        amount
-      })
-    })
-      .then(res => res.json())
-      .then(json => {
+    deleteWorkout(
+      workoutDeleteID,
+      props.route.params.exercise.id,
+      amount
+    ).then(() => {
         setWorkoutDeleteID(null);
         setConfirmDeleteWorkout(false);
-        setLifetimeTotal(lifetimeTotal - amount);
-        getWorkouts();
-      });
+        onRefresh();
+    })
   };
 
-  // Get all workouts matching exercise by id from server database
-  const getWorkouts = () => {
-    setIsFetchingWorkouts(true);
-    const exercise_id = props.route.params.exercise.id;
-    fetch(`${URL}/workouts/${exercise_id}`, {
-      method: "GET"
+  // Get the exercise again and refresh the lifetimeTotal
+  const refreshLifetimeTotal = () => {
+    const id = props.route.params.exercise.id;
+    fetchExercise(id).then(exercise => {
+      setLifetimeTotal(exercise.lifetimeTotal);
     })
-      .then(res => res.json())
-      .then(json => {
-        setWorkouts(json.data);
-        setIsFetchingWorkouts(false);
-      });
-  };
+  }
 
   // Assemble workouts list
   const WorkoutsList = [];
@@ -222,7 +210,7 @@ export default function ViewExerciseScreen(props) {
     DeleteWorkoutButtons = (
       <ConfirmDeletionButtons
         key={"confirmDelete"}
-        confirm={deleteWorkout}
+        confirm={removeWorkout}
         cancel={() => setConfirmDeleteWorkout(false)}
       />
     );
@@ -254,7 +242,7 @@ export default function ViewExerciseScreen(props) {
   if (confirmDeleteExercise) {
     DeleteExerciseButtons = (
       <ConfirmDeletionButtons
-        confirm={deleteExercise}
+        confirm={removeExercise}
         cancel={() => setConfirmDeleteExercise(false)}
       />
     );
@@ -281,13 +269,17 @@ export default function ViewExerciseScreen(props) {
           onPress={() =>
             props.navigation.navigate("Add Workout", {
               exercise: props.route.params.exercise,
-              getWorkouts
+              refreshLastScreen: onRefresh
             })
           }
         >
           <Text>Add workout</Text>
         </Button>
-        <Content padder>{ListDisplay}</Content>
+        <Content padder refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
+          {ListDisplay}
+        </Content>
         <View style={styles.buttons}>{DeleteExerciseButtons}</View>
       </Container>
     </StyleProvider>

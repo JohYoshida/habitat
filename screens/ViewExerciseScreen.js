@@ -211,7 +211,10 @@ export default function ViewExerciseScreen(props) {
       <ConfirmDeletionButtons
         key={"confirmDelete"}
         confirm={removeWorkout}
-        cancel={() => setConfirmDeleteWorkout(false)}
+        cancel={() => {
+          setConfirmDeleteWorkout(false)
+          setWorkoutDeleteID(null)
+        }}
       />
     );
   } else {

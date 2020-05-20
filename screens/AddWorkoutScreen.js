@@ -11,6 +11,7 @@ import {
   StyleProvider,
   Text
 } from "native-base";
+import * as Haptics from 'expo-haptics';
 import { fetchExercises, postWorkout } from "../functions/fetch";
 import NumberPad from "../components/NumberPad";
 import CustomButtons from "../components/CustomButtons";
@@ -79,6 +80,7 @@ export default function AddWorkoutScreen(props) {
     postWorkout(body).then(() => {
       props.route.params.refreshLastScreen();
       props.navigation.goBack();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     });
   };
 

@@ -9,6 +9,7 @@ import {
   StyleProvider,
   Text
 } from "native-base";
+import * as Haptics from 'expo-haptics';
 import { LineChart, Grid, XAxis, YAxis } from "react-native-svg-charts";
 import * as shape from "d3-shape";
 import { ConfirmDeletionButtons } from "../components/ConfirmDeletionButtons";
@@ -85,6 +86,7 @@ export default function ViewExerciseScreen(props) {
     deleteExercise(id, name).then(() => {
       props.route.params.refreshLastScreen();
       setConfirmDeleteExercise(false);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       props.navigation.goBack();
     });
   };
@@ -108,6 +110,7 @@ export default function ViewExerciseScreen(props) {
         setWorkoutDeleteID(null);
         setConfirmDeleteWorkout(false);
         onRefresh();
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
     );
   };
@@ -396,7 +399,10 @@ export default function ViewExerciseScreen(props) {
         bordered
         danger
         key={"delete"}
-        onPress={() => setConfirmDeleteWorkout(true)}
+        onPress={() => {
+          setConfirmDeleteWorkout(true);
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        }}
       >
         <Text>Delete Workout</Text>
       </Button>
@@ -427,7 +433,10 @@ export default function ViewExerciseScreen(props) {
         block
         bordered
         danger
-        onPress={() => setConfirmDeleteExercise(true)}
+        onPress={() => {
+          setConfirmDeleteExercise(true);
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        }}
       >
         <Text>Delete {name}</Text>
       </Button>

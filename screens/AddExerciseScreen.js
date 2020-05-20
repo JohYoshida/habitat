@@ -2,6 +2,7 @@ import * as React from "react";
 import { StyleSheet } from "react-native";
 import { Input } from "react-native-elements";
 import { Button, Container, Content, StyleProvider, Text } from "native-base";
+import * as Haptics from 'expo-haptics';
 import { postExercise } from "../functions/fetch";
 import Colors from "../constants/Colors";
 import CustomButtons from "../components/CustomButtons";
@@ -24,6 +25,7 @@ export default function AddExerciseScreen(props) {
     if (exercises.length === 0) {
       postExercise(exercise, modeButtons[modeIndex]).then(() => {
         props.route.params.refreshLastScreen();
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         props.navigation.goBack();
       });
     } else {
@@ -31,11 +33,13 @@ export default function AddExerciseScreen(props) {
       exercises.forEach(item => {
         if (item.name === exercise) {
           duplicate = true;
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
           inputError();
         }
       });
       if (!duplicate) {
         postExercise(exercise, modeButtons[modeIndex]).then(() => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           props.route.params.refreshLastScreen();
           props.navigation.goBack();
         });

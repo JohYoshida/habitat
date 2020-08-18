@@ -433,12 +433,12 @@ export default function ViewExerciseScreen(props) {
         block
         bordered
         danger
-        onPress={() => {
+        onLongPress={() => {
           setConfirmDeleteExercise(true);
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
         }}
       >
-        <Text>Delete {name}</Text>
+        <Text>Hold to Delete {name}</Text>
       </Button>
     );
   }

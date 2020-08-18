@@ -44,7 +44,8 @@ export default function ViewExerciseScreen(props) {
     Number(props.route.params.exercise.lifetimeTotal)
   );
 
-  // Hooks for chart
+  // Hooks for chart data and list construction
+  const [displayChart, setDisplayChart] = React.useState(null);
   const [chartData, setChartData] = React.useState({
     today: { data: [], dates: [], total: 0 },
     thisWeek: { data: [], dates: [], total: 0 },
@@ -53,7 +54,6 @@ export default function ViewExerciseScreen(props) {
     cumulative: { data: [], total: 0 },
     workoutsList: []
   });
-  const [displayChart, setDisplayChart] = React.useState(null);
 
   // Get workouts when the screen mounts or state updates
   React.useEffect(

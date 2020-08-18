@@ -105,10 +105,17 @@ function assembleChartData(workouts) {
   });
 
   // Replace nulls with zeroes
-  cleanup(charts.cumulative);
+  cleanup(charts.cumulative, "MM-DD-YYYY");
   cleanup(charts.lifetime, "MM-DD-YYYY");
   cleanup(charts.thisWeek, "MMM Do");
   cleanup(charts.thisMonth, "MMM Do");
+  // cleanup(charts.cumulative.data);
+  // cleanup(charts.lifetime.data);
+  // cleanup(charts.thisWeek.data);
+  // cleanup(charts.thisMonth.data);
+  // cleanup(charts.lifetime.dates);
+  // cleanup(charts.thisWeek.dates);
+  // cleanup(charts.thisMonth.dates);
 
   // Reverse order of data
   charts.today.data.reverse();

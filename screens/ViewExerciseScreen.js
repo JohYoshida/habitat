@@ -30,7 +30,6 @@ const moment = require("moment");
 export default function ViewExerciseScreen(props) {
   // Hook for storing workout data
   const [workouts, setWorkouts] = React.useState([]);
-  const [yesterdayIndex, setYesterdayIndex] = React.useState([]);
 
   // Hooks for deleting data
   const [workoutDeleteID, setWorkoutDeleteID] = React.useState(null);

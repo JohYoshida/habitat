@@ -354,7 +354,6 @@ const makeBarChart = (data, XAxisData, key, dailyGoal) => {
   if (data && data.length > 1) {
     const chartData = [];
     data.forEach(value => {
-    console.log(dailyGoal);
       let svg = value >= dailyGoal ? { fill: Colors.brandSuccess } : {fill:Colors.brandPrimary};
       chartData.push({value, svg})
     })

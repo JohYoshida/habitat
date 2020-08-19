@@ -308,20 +308,6 @@ export default function ViewExerciseScreen(props) {
   );
 }
 
-// Assemble dyamic titles for WorkoutsList items
-const assembleTitle = (mode, number, name) => {
-  let title;
-  if (mode === "time") {
-    let hours = Math.floor(number / 3600);
-    let minutes = Math.floor((number - hours * 3600) / 60);
-    let seconds = Math.floor(number - hours * 3600 - minutes * 60);
-    title = `${hours} h ${minutes} m ${seconds} s`;
-  } else if (mode === "reps and sets") {
-    title = `${number} ${name}`;
-  }
-  return title;
-};
-
 const makeBarChart = (data, XAxisData, key, dailyGoal) => {
   if (key == "today") {
     const total = data.reduce((a, b) => a + b, 0);

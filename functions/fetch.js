@@ -1,4 +1,4 @@
-import { URL } from "../constants/URLs";
+import {URL} from "../constants/URLs";
 
 // Get a particular exercise from server
 function fetchExercise(id) {
@@ -26,7 +26,8 @@ function fetchExercises() {
   });
 }
 
-function postExercise(name, mode) {
+// Post an exercise to the server
+function postExercise(name, mode, dailyGoal) {
   return new Promise(resolve => {
     fetch(`${URL}/exercise`, {
       method: "POST",
@@ -36,9 +37,34 @@ function postExercise(name, mode) {
       },
       body: JSON.stringify({
         name,
-        mode
+        mode,
+        dailyGoal: dailyGoal ? dailyGoal : 0
       })
     }).then(() => resolve());
+  });
+}
+
+// Update an exercise
+function updateExercise(exercise) {
+  const {id, name, mode, dailyGoal, lifetimeTotal} = exercise;
+  console.log("dailyGoal", dailyGoal);
+  return new Promise(resolve => {
+    fetch(`${URL}/exercise/${id}`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name,
+        mode,
+        lifetimeTotal,
+        dailyGoal: dailyGoal ? dailyGoal : 0
+      })
+    }).then(() => {
+      resolve();
+      console.log("update resolved");
+    });
   });
 }
 
@@ -52,7 +78,7 @@ function deleteExercise(id, name) {
         "Content-Type": "application/json",
         "Access-Control-Allow-Methods": "DELETE"
       },
-      body: JSON.stringify({ id, name })
+      body: JSON.stringify({id, name})
     }).then(() => resolve());
   });
 }
@@ -104,6 +130,7 @@ function deleteWorkout(id, exercise_id, amount) {
 export {
   fetchExercise,
   postExercise,
+  updateExercise,
   deleteExercise,
   fetchExercises,
   fetchWorkouts,

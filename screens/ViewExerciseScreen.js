@@ -258,7 +258,7 @@ export default function ViewExerciseScreen(props) {
           onPress={() => {
             setDailyGoal(numberPadVal)
             let {exercise} = props.route.params;
-            exercise.dailyGoal = dailyGoal;
+            exercise.dailyGoal = numberPadVal;
             setShowGoalPanel(false);
             updateExercise(exercise);
           }}>

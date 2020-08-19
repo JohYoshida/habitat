@@ -60,6 +60,7 @@ export default function ViewExerciseScreen(props) {
   // Hooks for daily goal
   const [showGoalPanel, setShowGoalPanel] = React.useState(false);
   const [dailyGoal, setDailyGoal] = React.useState(Number(props.route.params.exercise.dailyGoal));
+  const [numberPadVal, setNumberPadVal] = React.useState(dailyGoal);
 
   // Get workouts when the screen mounts or state updates
   React.useEffect(
@@ -248,13 +249,14 @@ export default function ViewExerciseScreen(props) {
           mode={"number"}
           initialValue={dailyGoal}
           callback={text => {
-            setDailyGoal(Number(text));
+            setNumberPadVal(Number(text));
           }}
         />
         <Button
           block
           style={styles.buttons}
           onPress={() => {
+            setDailyGoal(numberPadVal)
             let {exercise} = props.route.params;
             exercise.dailyGoal = dailyGoal;
             setShowGoalPanel(false);
@@ -353,7 +355,7 @@ const makeBarChart = (data, XAxisData, key, dailyGoal) => {
     const chartData = [];
     data.forEach(value => {
     console.log(dailyGoal);
-      let svg = value > dailyGoal ? { fill: Colors.brandSuccess } : {fill:Colors.brandPrimary};
+      let svg = value >= dailyGoal ? { fill: Colors.brandSuccess } : {fill:Colors.brandPrimary};
       chartData.push({value, svg})
     })
     return (

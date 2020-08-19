@@ -212,7 +212,8 @@ export default function ViewExerciseScreen(props) {
   const LifetimeChart = makeBarChart(
     chartData.lifetime.data,
     chartData.lifetime.dates,
-    "lifetime"
+    "lifetime",
+    dailyGoal
   );
 
   if (displayChart !== null) {
@@ -349,6 +350,12 @@ const makeBarChart = (data, XAxisData, key, dailyGoal) => {
     );
   }
   if (data && data.length > 1) {
+    const chartData = [];
+    data.forEach(value => {
+    console.log(dailyGoal);
+      let svg = value > dailyGoal ? { fill: Colors.brandSuccess } : {fill:Colors.brandPrimary};
+      chartData.push({value, svg})
+    })
     return (
       <View
         style={{ height: 300, padding: 10, flexDirection: "row" }}
@@ -365,9 +372,10 @@ const makeBarChart = (data, XAxisData, key, dailyGoal) => {
         <View style={{ flex: 1, marginLeft: 10 }}>
           <BarChart
             style={{ flex: 1 }}
-            data={data}
+            data={chartData}
+            yAccessor={({ item }) => item.value}
             contentInset={{ top: 10, bottom: 10 }}
-            svg={{ fill: "#2196F3"}}
+            svg={{ fill: Colors.brandPrimary }}
             gridMin={0}
           >
             <Grid />
@@ -413,7 +421,7 @@ const makeLineChart = (data, XAxisData, key) => {
             style={{ flex: 1 }}
             data={data}
             contentInset={{ top: 10, bottom: 10 }}
-            svg={{ stroke: "#2196F3" }}
+            svg={{ stroke: Colors.brandPrimary }}
             gridMin={0}
           >
             <Grid />

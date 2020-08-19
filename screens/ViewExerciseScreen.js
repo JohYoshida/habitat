@@ -12,10 +12,12 @@ import {
 import * as Haptics from 'expo-haptics';
 import { BarChart, LineChart, Grid, XAxis, YAxis } from "react-native-svg-charts";
 import * as shape from "d3-shape";
+import NumberPad from "../components/NumberPad";
 import { ConfirmDeletionButtons } from "../components/ConfirmDeletionButtons";
 import {
   fetchExercise,
   fetchWorkouts,
+  updateExercise,
   deleteExercise,
   deleteWorkout
 } from "../functions/fetch";
@@ -54,6 +56,10 @@ export default function ViewExerciseScreen(props) {
     cumulative: { data: [], total: 0 },
     workoutsList: []
   });
+
+  // Hooks for daily goal
+  const [showGoalPanel, setShowGoalPanel] = React.useState(false);
+  const [dailyGoal, setDailyGoal] = React.useState(Number(props.route.params.exercise.dailyGoal));
 
   // Get workouts when the screen mounts or state updates
   React.useEffect(
@@ -216,7 +222,7 @@ export default function ViewExerciseScreen(props) {
       chart = makeLineChart(chartData.cumulative.data, chartData.lifetime.dates, displayChart);
     } else {
       // bar chart
-      chart = makeBarChart(chartData[displayChart].data, chartData[displayChart].dates, displayChart)
+      chart = makeBarChart(chartData[displayChart].data, chartData[displayChart].dates, displayChart, dailyGoal)
     }
     WorkoutsList.forEach((object, index) => {
       if (object && object.key == `${displayChart}-header`) {
@@ -225,9 +231,60 @@ export default function ViewExerciseScreen(props) {
     });
   }
 
+  let DailyGoalSetter;
+  if (showGoalPanel) {
+    DailyGoalSetter = (
+      <View>
+        <Button
+          block
+          bordered
+          style={styles.buttons}
+          onPress={() => setShowGoalPanel(false)}
+          >
+          <Text>Cancel</Text>
+        </Button>
+        <NumberPad
+          mode={"number"}
+          initialValue={dailyGoal}
+          callback={text => {
+            setDailyGoal(Number(text));
+          }}
+        />
+        <Button
+          block
+          style={styles.buttons}
+          onPress={() => {
+            let {exercise} = props.route.params;
+            exercise.dailyGoal = dailyGoal;
+            setShowGoalPanel(false);
+            updateExercise(exercise);
+          }}>
+          <Text>Submit</Text>
+        </Button>
+      </View>
+    );
+  } else {
+    DailyGoalSetter = (
+      <Button
+        block
+        bordered
+        style={styles.buttons}
+        onPress={() => setShowGoalPanel(true)}
+      >
+        <Text>Set daily goal</Text>
+      </Button>
+    );
+  }
+
   return (
     <StyleProvider style={getTheme(platform)}>
       <Container>
+        <Content
+          padder
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
         <Button
           block
           bordered
@@ -241,13 +298,8 @@ export default function ViewExerciseScreen(props) {
         >
           <Text>Add workout</Text>
         </Button>
-        <Content
-          padder
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        >
           {LifetimeChart}
+          {DailyGoalSetter}
           {WorkoutsList}
           <View style={styles.buttons}>{DeleteExerciseButtons}</View>
         </Content>
@@ -270,7 +322,46 @@ const assembleTitle = (mode, number, name) => {
   return title;
 };
 
-const makeBarChart = (data, XAxisData, key) => {
+const makeBarChart = (data, XAxisData, key, dailyGoal) => {
+  if (key == "today") {
+    const total = data.reduce((a, b) => a + b, 0);
+    let fill;
+    if (total >= dailyGoal) {
+      fill = { fill: Colors.brandSuccess }
+    } else {
+      fill = { fill: Colors.brandPrimary }
+    }
+    return (
+      <View
+        style={{ height: 100, padding: 10, flexDirection: "row" }}
+        key={`${key} graph`}
+      >
+        <View style={{ flex: 1, marginLeft: 10 }}>
+          <BarChart
+            horizontal={true}
+            style={{ flex: 1 }}
+            data={[total]}
+            contentInset={{ top: 10, bottom: 10 }}
+            svg={fill}
+            gridMin={0}
+            gridMax={dailyGoal}
+          >
+            <Grid
+              direction={Grid.Direction.VERTICAL}/>
+          </BarChart>
+          <XAxis
+            data={data}
+            style={{ marginHorizontal: -10, height: 10 }}
+            contentInset={{ left: 10, right: 10 }}
+            svg={{ fontSize: 10, fill: "grey" }}
+            numberOfTicks={10}
+            min={0}
+            max={dailyGoal}
+          />
+        </View>
+      </View>
+    );
+  }
   if (data && data.length > 1) {
     return (
       <View
@@ -308,7 +399,7 @@ const makeBarChart = (data, XAxisData, key) => {
     );
   } else {
     return (
-      <Text key="text" style={styles.emptyListText}>
+      <Text key="barGraphText" style={styles.emptyListText}>
         add more workouts to see this graph
       </Text>
     );
@@ -354,7 +445,7 @@ const makeLineChart = (data, XAxisData, key) => {
     );
   } else {
     return (
-      <Text key="text" style={styles.emptyListText}>
+      <Text key="lineGraphText" style={styles.emptyListText}>
         add more workouts to see this graph
       </Text>
     );

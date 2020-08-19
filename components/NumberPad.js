@@ -8,14 +8,14 @@ import Colors from "../constants/Colors";
 export default function NumberPad(props) {
   const initialValue = props.initialValue ? props.initialValue : "000000";
   const [mode, setMode] = React.useState(props.mode);
-  const [hours, setHours] = React.useState(initialValue.slice(0, 2));
-  const [minutes, setMinutes] = React.useState(initialValue.slice(2, 4));
-  const [seconds, setSeconds] = React.useState(initialValue.slice(4, 6));
+  const [hours, setHours] = React.useState(mode == "number" ? null: initialValue.slice(0, 2));
+  const [minutes, setMinutes] = React.useState(mode == "number" ? null: initialValue.slice(2, 4));
+  const [seconds, setSeconds] = React.useState(mode == "number" ? null: initialValue.slice(4, 6));
   const [amount, setAmount] = React.useState(() => {
     if (mode === "time") {
       return Number(initialValue) !== 0 ? Number(initialValue).toString() : "";
     } else if (mode === "number") {
-      return "";
+      return Number(initialValue) == 0 ? "" : initialValue.toString();
     }
   });
 

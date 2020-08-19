@@ -47,7 +47,6 @@ function postExercise(name, mode, dailyGoal) {
 // Update an exercise
 function updateExercise(exercise) {
   const {id, name, mode, dailyGoal, lifetimeTotal} = exercise;
-  console.log("dailyGoal", dailyGoal);
   return new Promise(resolve => {
     fetch(`${URL}/exercise/${id}`, {
       method: "POST",
@@ -63,7 +62,6 @@ function updateExercise(exercise) {
       })
     }).then(() => {
       resolve();
-      console.log("update resolved");
     });
   });
 }

@@ -166,14 +166,22 @@ function cleanup(dataset, format) {
       dataset.data[i] = 0;
       if (dataset.dates) {
         dataset.dates[i] = moment()
-        .subtract(i, "days")
-        .format(format);;
+          .subtract(i, "days")
+          .format(format);
       }
     }
   }
 }
 
-function assembleWorkoutsList(chartData, name, mode, displayChart, setDisplayChart, workoutDeleteID, setWorkoutDeleteID) {
+function assembleWorkoutsList(
+  chartData,
+  name,
+  mode,
+  displayChart,
+  setDisplayChart,
+  workoutDeleteID,
+  setWorkoutDeleteID
+) {
   const WorkoutsList = [];
   chartData.workoutsList.forEach(item => {
     if (item == "Today") {

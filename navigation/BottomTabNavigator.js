@@ -52,8 +52,8 @@ export default function BottomTabNavigator({ navigation, route }) {
         component={ExerciseStackScreen}
         options={{
           title: "Exercise",
-          tabBarIcon: ({ focused }) => (
-            <TabBarIcon focused={focused} name="md-stats" />
+          tabBarIcon: ({focused}) => (
+            <TabBarIcon focused={focused} name="md-barbell" />
           )
         }}
       />

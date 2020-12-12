@@ -1,5 +1,5 @@
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createStackNavigator } from "@react-navigation/stack";
+import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
+import {createStackNavigator} from "@react-navigation/stack";
 import * as React from "react";
 
 import TabBarIcon from "../components/TabBarIcon";
@@ -21,7 +21,7 @@ function ExerciseStackScreen() {
       <ExerciseStack.Screen
         name="View Exercise"
         component={ViewExerciseScreen}
-        options={({ route }) => ({ title: route.params.exercise.name })}
+        options={({route}) => ({title: route.params.exercise.name})}
       />
       <ExerciseStack.Screen name="Add Workout" component={AddWorkoutScreen} />
     </ExerciseStack.Navigator>
@@ -29,11 +29,11 @@ function ExerciseStackScreen() {
 }
 
 const BottomTab = createBottomTabNavigator();
-export default function BottomTabNavigator({ navigation, route }) {
+export default function BottomTabNavigator({navigation, route}) {
   // Set the header title on the parent stack navigator depending on the
   // currently active tab. Learn more in the documentation:
   // https://reactnavigation.org/docs/en/screen-options-resolution.html
-  navigation.setOptions({ headerTitle: getHeaderTitle(route) });
+  navigation.setOptions({headerTitle: getHeaderTitle(route)});
 
   return (
     <BottomTab.Navigator initialRouteName={INITIAL_ROUTE_NAME}>
@@ -42,7 +42,7 @@ export default function BottomTabNavigator({ navigation, route }) {
         component={HomeScreen}
         options={{
           title: "Get Started",
-          tabBarIcon: ({ focused }) => (
+          tabBarIcon: ({focused}) => (
             <TabBarIcon focused={focused} name="md-code-working" />
           )
         }}
@@ -62,7 +62,7 @@ export default function BottomTabNavigator({ navigation, route }) {
         component={LinksScreen}
         options={{
           title: "Resources",
-          tabBarIcon: ({ focused }) => (
+          tabBarIcon: ({focused}) => (
             <TabBarIcon focused={focused} name="md-book" />
           )
         }}

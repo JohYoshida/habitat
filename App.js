@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
-import { AppLoading, SplashScreen } from 'expo';
+import { AppLoading } from 'expo';
+import * as SplashScreen from 'expo-splash-screen';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';

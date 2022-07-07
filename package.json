@@ -26,7 +26,7 @@
     "expo-haptics": "~8.4.0",
     "expo-splash-screen": "~0.8.1",
     "expo-web-browser": "~8.6.0",
-    "moment": "^2.29.2",
+    "moment": "^2.29.4",
     "native-base": "^2.13.15",
     "react": "16.13.1",
     "react-dom": "16.13.1",
